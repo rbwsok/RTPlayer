@@ -1,0 +1,126 @@
+<resources>
+    <string name="app_name">RTPlayer</string>
+    <string name="ok">ОК</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="cancel">Отмена</string>
+    <string name="start">Запуск</string>
+    <string name="stop">Остановить</string>
+    <string name="exit">Выход</string>
+    <string name="preferences">Настройки</string>
+    <string name="delete_file_question">Удалить файл?</string>
+    <string name="delete_file_comment">Файл будет безвозвратно удален с диска</string>
+    <string name="addresses">Адреса:</string>
+    <string name="state">Состояние:</string>
+    <string name="port">Порт (4000–65535):</string>
+    <string name="ftp_server">FTP сервер</string>
+    <string name="stopped">Остановлен</string>
+    <string name="started">Запущен</string>
+    <string name="absent">Отсутствует</string>
+    <string name="unknown">Не определен</string>
+    <string name="error">Ошибка: </string>
+    <string name="ftp_error_1">Адрес не определен</string>
+    <string name="ftp_error_2">Некорректный номер порта</string>
+    <string name="set_default_params">Параметры по умолчанию установлены</string>
+    <string name="additional_folder_absent">(не определена)</string>
+    <string name="toolbar_position">Расположение тулбара</string>
+    <string name="text_size">Размер текста</string>
+    <string name="music_folder">Папка с музыкой</string>
+    <string name="additional_music_folder">Дополнительная папка с музыкой</string>
+    <string name="repeat_mode">Повтор</string>
+    <string name="play_on_start">Автовоспроизведение при запуске</string>
+    <string name="show_title_file">Отображение имени файла</string>
+    <string name="show_subtitle_file">Отображение информации о файле</string>
+    <string name="top_space">Отступ сверху</string>
+    <string name="left_space">Отступ слева</string>
+    <string name="right_space">Отступ справа</string>
+    <string name="bottom_space">Отступ снизу</string>
+    <string name="max_depth_recent">Количество неповторяемых композиций при случайном воспроизведении</string>
+    <string name="interrupt_action">Действие при прерывании воспроизведения (задний ход, навигация и т.д.)</string>
+    <string name="remap_keys">Переназначение клавиш</string>
+    <string name="set_defaults">Настройки по умолчанию</string>
+    <string name="location">Расположение:</string>
+    <string name="delete">Удалить</string>
+    <string name="selectfolder">Выбор папки</string>
+    <string name="defaulttime">00:00</string>
+    <string name="media_buttons_options_caption">Настройка клавиш</string>
+    <string name="media_buttons_set_default">По умолчанию</string>
+    <string name="media_buttons_add">Добавить</string>
+    <string name="media_buttons_press_button">Нажмите клавишу</string>
+    <string name="media_buttons_select_action">Выберите действие</string>
+    <string name="version">Версия:</string>
+    <string name="window_size">Размер:</string>
+    <string name="background_mode">Фон</string>
+    <string-array name="toolbar_position_entries">
+        <item>Слева</item>
+        <item>Справа</item>
+        <item>Вверху</item>
+        <item>Внизу</item>
+    </string-array>
+    <string-array name="toolbar_position_entry_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+    <string-array name="repeat_mode_entries">
+        <item>Отсутствует</item>
+        <item>Один звук</item>
+        <item>Папка</item>
+        <item>Все звуки</item>
+    </string-array>
+    <string-array name="repeat_mode_entry_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+    <string-array name="play_on_start_entries">
+        <item>Отключено</item>
+        <item>Включено</item>
+    </string-array>
+    <string-array name="play_on_start_entry_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+    <string-array name="title_file_entries">
+        <item>Имя файла</item>
+        <item>Название композиции</item>
+    </string-array>
+    <string-array name="title_file_entry_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+    <string-array name="subtitle_file_entries">
+        <item>Путь к файлу</item>
+        <item>Исполнитель - Альбом</item>
+        <item>Название - Исполнитель - Альбом</item>
+    </string-array>
+    <string-array name="subtitle_file_entry_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="interrupt_action_entries">
+        <item>Поставить на паузу</item>
+        <item>Понизить громкость до 30 процентов</item>
+        <item>Понизить громкость до 50 процентов</item>
+        <item>Понизить громкость до 70 процентов</item>
+        <item>Ничего не делать</item>
+    </string-array>
+    <string-array name="interrupt_action_entry_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+    <string-array name="background_entries">
+        <item>Стандарт 1460x720</item>
+        <item>Полный экран 1920x720</item>
+    </string-array>
+    <string-array name="background_entry_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+</resources>

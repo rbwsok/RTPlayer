@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="850dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/CaptionTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="26dp"
+        android:text="@string/media_buttons_options_caption"
+        android:textColor="@color/FontColor"
+        android:textSize="26sp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/media_button_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp"
+        android:minHeight="300dp" />
+
+        <TextView
+            android:id="@+id/input_media_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/media_buttons_press_button"
+            android:textColor="@color/FontColor"
+            android:textSize="24sp"
+            android:layout_marginBottom="20dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="10dp">
+
+        <Button
+            android:id="@+id/button_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/media_buttons_add"
+            android:textAllCaps="false"
+            android:textSize="26sp" />
+
+        <Space
+            android:layout_width="26dp"
+            android:layout_height="match_parent" />
+
+        <Button
+            android:id="@+id/button_default"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/media_buttons_set_default"
+            android:textAllCaps="false"
+            android:textSize="26sp" />
+
+        <Space
+            android:layout_width="26dp"
+            android:layout_height="match_parent" />
+
+        <Button
+            android:id="@+id/button_exit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/exit"
+            android:textAllCaps="false"
+            android:textSize="26sp" />
+    </LinearLayout>
+</LinearLayout>
