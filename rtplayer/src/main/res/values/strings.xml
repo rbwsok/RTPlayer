@@ -37,7 +37,7 @@
     <string name="bottom_space">Отступ снизу</string>
     <string name="max_depth_recent">Количество неповторяемых композиций при случайном воспроизведении</string>
     <string name="interrupt_action">Действие при прерывании воспроизведения (задний ход, навигация и т.д.)</string>
-    <string name="remap_keys">Переназначение клавиш</string>
+    <string name="remap_keys">Переназначение клавиш (не работает)</string>
     <string name="set_defaults">Настройки по умолчанию</string>
     <string name="location">Расположение:</string>
     <string name="delete">Удалить</string>

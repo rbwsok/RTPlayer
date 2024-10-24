@@ -1,5 +1,6 @@
 package su.rbws.rtplayer;
 
+import android.app.Instrumentation;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -26,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -45,15 +47,13 @@ import su.rbws.rtplayer.service.soundplayer.SoundSystemAbstract;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, IDialogButtonInterface {
     RecyclerView filesRecyclerView;
     ImageView shuffleLeft, shuffleRight, shuffleUp, shuffleDown;
-    ImageView optionsLeft, optionsRight, optionsUp, optionsDown;
-    ImageView backLeftImageView, backRightImageView, backUpImageView, backDownImageView;
     ImageView playPauseImageView, nextSoundImageView, prevSoundImageView;
-    ImageView backFolderLeft, backFolderRight, backFolderUp, backFolderDown;
-    ImageView topFolderLeft, topFolderRight, topFolderUp, topFolderDown;
     TextView positionTextView, durationSoundTextView;
     SeekBar soundSeekBar;
     Thread seekBarThread;
     SoundsRecyclerAdapter adapter;
+
+    ImageView standartMusicInageView, standartTelephoneInageView, standartHomeInageView;
 
     MediaServiceLink serviceLink;
 
@@ -198,6 +198,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
 
+        ImageView optionsLeft, optionsRight, optionsUp, optionsDown;
+        ImageView backLeftImageView, backRightImageView, backUpImageView, backDownImageView;
+        ImageView backFolderLeft, backFolderRight, backFolderUp, backFolderDown;
+        ImageView topFolderLeft, topFolderRight, topFolderUp, topFolderDown;
+
         shuffleLeft = findViewById(R.id.shuffle_left);
         shuffleLeft.setOnClickListener(shuffleClick);
         shuffleRight = findViewById(R.id.shuffle_right);
@@ -283,10 +288,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         topFolderDown = findViewById(R.id.top_folder_down);
         topFolderDown.setOnClickListener(imageTopFolderClick);
 
-        playPauseImageView = findViewById(R.id.PlayPauseImageView);
-        nextSoundImageView = findViewById(R.id.NextSoundImageView);
-        prevSoundImageView = findViewById(R.id.PrevSoundImageView);
-
         View.OnClickListener imagePlayerClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -317,9 +318,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         };
+
+        playPauseImageView = findViewById(R.id.PlayPauseImageView);
         playPauseImageView.setOnClickListener(imagePlayerClick);
+        nextSoundImageView = findViewById(R.id.NextSoundImageView);
         nextSoundImageView.setOnClickListener(imagePlayerClick);
+        prevSoundImageView = findViewById(R.id.PrevSoundImageView);
         prevSoundImageView.setOnClickListener(imagePlayerClick);
+
+        View.OnClickListener imageStandartClick = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v == standartMusicInageView) {
+                    Toast.makeText(getApplicationContext(), "standart music", Toast.LENGTH_SHORT).show();
+                    simulateKey(KeyEvent.KEYCODE_VIDEO_APP_1);
+                }
+                else
+                if (v == standartTelephoneInageView) {
+                    Toast.makeText(getApplicationContext(), "standart telephone", Toast.LENGTH_SHORT).show();
+                    simulateKey(KeyEvent.KEYCODE_THUMBS_UP);
+                }
+                else
+                if (v == standartHomeInageView) {
+                    Toast.makeText(getApplicationContext(), "standart home", Toast.LENGTH_SHORT).show();
+                    moveTaskToBack(true);
+                }
+            }
+        };
+
+        standartMusicInageView = findViewById(R.id.button_standart_music);
+        standartMusicInageView.setOnClickListener(imageStandartClick);
+        standartTelephoneInageView = findViewById(R.id.button_standart_telephone);
+        standartTelephoneInageView.setOnClickListener(imageStandartClick);
+        standartHomeInageView  = findViewById(R.id.button_standart_home);
+        standartHomeInageView.setOnClickListener(imageStandartClick);
 
         positionTextView = findViewById(R.id.PositionTextView);
         durationSoundTextView = findViewById(R.id.DurationTextView);
@@ -356,6 +388,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         seekBarThread.start();
     }
 
+    private static void simulateKey(final int KeyCode) {
+
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Instrumentation inst = new Instrumentation();
+                    inst.sendKeyDownUpSync(KeyCode);
+                } catch (Exception e) {
+                    Log.e("Exception when sendKeyDownUpSync", e.toString());
+                }
+            }
+
+        }.start();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -363,8 +411,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // расположение activity на дисплее
         // --- 285 --- + --- 1460 --- + -- 175
         // --180 --- + --- 1740 ---
-
-
 
         if (!PermissionUtils.hasPermissions(this))
             PermissionUtils.requestPermissions(this);
@@ -394,26 +440,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         EdgeToEdge.enable(this);
 
-/*
-        // fullscreen
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-        if(Build.VERSION.SDK_INT >= 19)
-        {
-            getWindow().getDecorView().setSystemUiVisibility(
-                               View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_LOW_PROFILE
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE);
-
-        }*/
-
         setContentView(R.layout.activity_main);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -428,14 +454,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         applyPreferences();
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
-
-        /*DisplayMetrics displaymetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-        int screenWidth = displaymetrics.widthPixels;
-        int screenHeight = displaymetrics.heightPixels;
-        Toast.makeText(this, "w: " + Integer.toString(screenWidth) + " h: " + Integer.toString(screenHeight), Toast.LENGTH_SHORT).show();
-*/
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -501,6 +519,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             getWindow().getDecorView().setSystemUiVisibility(0);
             Drawable drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.background);
             mainLayout.setBackground(drawable);
+
+            if (standartMusicInageView.getVisibility() != View.GONE)
+                standartMusicInageView.setVisibility(View.GONE);
+            if (standartTelephoneInageView.getVisibility() != View.GONE)
+                standartTelephoneInageView.setVisibility(View.GONE);
+            if (standartHomeInageView.getVisibility() != View.GONE)
+                standartHomeInageView.setVisibility(View.GONE);
         }
         else
         if (backgroundMode == 1) {
@@ -519,6 +544,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             Drawable drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.background_1920);
             mainLayout.setBackground(drawable);
+
+/*            if (standartMusicInageView.getVisibility() != View.VISIBLE)
+                standartMusicInageView.setVisibility(View.VISIBLE);
+            if (standartTelephoneInageView.getVisibility() != View.VISIBLE)
+                standartTelephoneInageView.setVisibility(View.VISIBLE);
+            if (standartHomeInageView.getVisibility() != View.VISIBLE)
+                standartHomeInageView.setVisibility(View.VISIBLE);
+
+ */
+            if (standartMusicInageView.getVisibility() != View.GONE)
+                standartMusicInageView.setVisibility(View.GONE);
+            if (standartTelephoneInageView.getVisibility() != View.GONE)
+                standartTelephoneInageView.setVisibility(View.GONE);
+            if (standartHomeInageView.getVisibility() != View.GONE)
+                standartHomeInageView.setVisibility(View.GONE);
         }
     }
 

@@ -199,7 +199,7 @@ public class DataBasePreferences extends DataBaseAbstract {
         // Действие при прерывании воспроизведения (задний ход, навигация и т.д.)
         item = new PreferenceItem();
         item.name = PREFERENCE_NAME_INTERRUPT_ACTION;
-        item.defaultValue = "1";
+        item.defaultValue = "2";
         item.preferenceType = PreferenceValueType.ptInterruptAction;
         item.isShow = true;
         item.title = RTApplication.getContext().getString(R.string.interrupt_action);
