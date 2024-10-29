@@ -450,8 +450,8 @@ public class DataBasePreferences extends DataBaseAbstract {
         for (Map.Entry<String, DataBaseAbstract.PreferenceItem> entry : data.entrySet()) {
             DataBaseAbstract.PreferenceItem item = entry.getValue();
 
-            if (item.preferenceType == PreferenceValueType.ptRemapKeysData)
-                item.value = RTApplication.getGlobalData().mediaButtonsMapper.serialization();
+//            if (item.preferenceType == PreferenceValueType.ptRemapKeysData)
+//                item.value = RTApplication.getGlobalData().mediaButtonsMapper.serialization();
 
             editor = sharedPreferences.edit();
             editor.putString(item.name, item.value);

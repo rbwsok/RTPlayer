@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAdapter.ViewHolder>
+public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAdapter.ViewHolder> implements IItemChange
 {
     private List<FileItem> items;
     public RecyclerView recyclerView;
@@ -62,7 +62,7 @@ public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAd
         boolean playedFile = false;
 
         if (item.isFile()) {
-            item.getMetadata(); // получение данных при отображении - должно быть быстрее чем обход всех
+            item.getParallelMetadata(this, position); // получение данных при отображении - должно быть быстрее чем обход всех
 
             holder.crossImage.setVisibility(View.VISIBLE);
 
@@ -75,55 +75,60 @@ public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAd
             else
                 drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_play);
 
-            switch (RTApplication.getDataBase().getTitleFileMode()) {
-                case 0:
-                    holder.songNameTextView.setText(item.name);
-                    break;
-                case 1:
-                    holder.songNameTextView.setText(item.Title);
-                    break;
+            if (item.metadataAcquired) {
+                switch (RTApplication.getDataBase().getTitleFileMode()) {
+                    case 0:
+                        holder.songNameTextView.setText(item.name);
+                        break;
+                    case 1:
+                        holder.songNameTextView.setText(item.title);
+                        break;
+                }
+
+                String str;
+                switch (RTApplication.getDataBase().getSubTitleFileMode()) {
+                    case 0:
+                        holder.infoTextView.setText(item.location);
+                        break;
+                    case 1:
+                        str = "";
+                        if (!item.artist.isEmpty())
+                            str = item.artist;
+
+                        if (!item.album.isEmpty()) {
+                            if (str.isEmpty())
+                                str = item.album;
+                            else
+                                str = str + " - " + item.album;
+                        }
+
+                        holder.infoTextView.setText(str);
+                        break;
+                    case 2:
+                        str = "";
+                        if (!item.title.isEmpty())
+                            str = item.title;
+
+                        if (!item.artist.isEmpty()) {
+                            if (str.isEmpty())
+                                str = item.artist;
+                            else
+                                str = str + " - " + item.artist;
+                        }
+
+                        if (!item.album.isEmpty()) {
+                            if (str.isEmpty())
+                                str = item.album;
+                            else
+                                str = str + " - " + item.album;
+                        }
+                        holder.infoTextView.setText(str);
+                        break;
+                }
             }
-
-            String str;
-            switch (RTApplication.getDataBase().getSubTitleFileMode()) {
-                case 0:
-                    holder.infoTextView.setText(item.location);
-                    break;
-                case 1:
-                    str = "";
-                    if (!item.Artist.isEmpty())
-                        str = item.Artist;
-
-                    if (!item.Album.isEmpty()) {
-                        if (str.isEmpty())
-                            str = item.Album;
-                        else
-                            str = str + " - " + item.Album;
-                    }
-
-                    holder.infoTextView.setText(str);
-                    break;
-                case 2:
-                    str = "";
-                    if (!item.Title.isEmpty())
-                        str = item.Title;
-
-                    if (!item.Artist.isEmpty())
-                    {
-                        if (str.isEmpty())
-                            str = item.Artist;
-                        else
-                            str = str + " - " + item.Artist;
-                    }
-
-                    if (!item.Album.isEmpty()) {
-                        if (str.isEmpty())
-                            str = item.Album;
-                        else
-                            str = str + " - " + item.Album;
-                    }
-                    holder.infoTextView.setText(str);
-                    break;
+            else {
+                holder.songNameTextView.setText(item.name);
+                holder.infoTextView.setText(item.location);
             }
         }
         else
@@ -213,4 +218,18 @@ public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAd
             captionImage = view.findViewById(R.id.caption_image);
         }
     }
+
+    @Override
+    public void onItemChanged(int position) {
+        recyclerView.post(new Runnable()
+        {
+            @Override
+            public void run() {
+                //notifyDataSetChanged();
+                notifyItemChanged(position);
+            }
+        });
+
+    }
 }
+

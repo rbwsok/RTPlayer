@@ -37,5 +37,5 @@ public class RTApplication extends Application {
         globalData = new GlobalData();
     }
 
-    public static final String version = "1.0.1539";
+    public static final String version = "1.0.1591";
 }

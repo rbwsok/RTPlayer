@@ -1,6 +1,7 @@
 package su.rbws.rtplayer;
 
 import android.media.MediaMetadataRetriever;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -52,8 +53,7 @@ public class FileItem implements Comparable<FileItem> {
         fiFile // файл
     }
 
-    public FileItem ()
-    {
+    public FileItem () {
     }
 
     public String location;
@@ -98,47 +98,68 @@ public class FileItem implements Comparable<FileItem> {
 
     }
 
-    public String Artist;
-    public String Album;
-    public String Title;
+    public String artist;
+    public String album;
+    public String title;
 
-    private boolean MetadataAcquired = false;
+    public volatile boolean metadataAcquired = false;
 
-    private final static FileItemMediaMetadataRetriever metaRetriver = new FileItemMediaMetadataRetriever();
+    private IItemChange itemChange;
+    private int itemPosition;
 
-    public void getMetadata() {
-        if (MetadataAcquired)
+    // запуск получения данных с уведомлением в потоке
+    public void getParallelMetadata(IItemChange itemChange, int itemPosition) {
+        if (metadataAcquired)
             return;
 
-        MetadataAcquired = true;
+        this.itemChange = itemChange;
+        this.itemPosition = itemPosition;
 
+        Thread workThread = new Thread(getMetadataRunnable);
+        workThread.start();
+    }
+
+    Runnable getMetadataRunnable = new Runnable() {
+        public void run() {
+            getMetadata();
+            itemChange.onItemChanged(itemPosition);
+            itemChange = null;
+        }
+    };
+
+    // непосредственное получение метаданных
+    public void getMetadata() {
         try {
-            //
+            FileItemMediaMetadataRetriever metaRetriver = new FileItemMediaMetadataRetriever();
             metaRetriver.setDataSource(getFullName());
 
-            Album = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-            Artist = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-            Title = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+            Log.i("rtplayer_tag", "get metadata " + this.name);
+
+            album = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+            artist = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+            title = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
         } catch (Exception e) {
-            Album = "";
-            Artist = "";
-            Title = this.name;
+            album = "";
+            artist = "";
+            title = this.name;
         }
 
-        if (Album == null)
-            Album = "";
-        if (Artist == null)
-            Artist = "";
-        if (Title == null) {
-            Title = Utils.extractFileNameNoExt(this.name);
+        if (album == null)
+            album = "";
+        if (artist == null)
+            artist = "";
+        if (title == null) {
+            title = Utils.extractFileNameNoExt(this.name);
 
-            int t = Title.indexOf('.');
+            int t = title.indexOf('.');
             if (t >= 0) {
-                if (Utils.isDigit(Title.substring(0, t))) {
-                    Title = Title.substring(t + 1).trim();
+                if (Utils.isDigit(title.substring(0, t))) {
+                    title = title.substring(t + 1).trim();
                 }
             }
         }
+
+        metadataAcquired = true;
     }
 }
 
