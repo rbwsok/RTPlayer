@@ -92,9 +92,13 @@ RTPlayer реализует два user case:
 ### Кнопки на главном экране.
 
 ![Перемещение в корневую папку](https://github.com/rbwsok/RTPlayer/blob/main/doc/root.jpg) - Перемещение в корневую папку
+
 ![Перемещение в папку на уровень выше](https://github.com/rbwsok/RTPlayer/blob/main/doc/parent.jpg) - Перемещение в папку на уровень выше
+
 ![Настройки](https://github.com/rbwsok/RTPlayer/blob/main/doc/options.jpg) - Настройки
+
 ![Перемешивание](https://github.com/rbwsok/RTPlayer/blob/main/doc/shuffle.jpg) - Перемешивание
+
 ![Выход](https://github.com/rbwsok/RTPlayer/blob/main/doc/exit.jpg) - Выход (С остановкой процесса)
 
 ### TODO. Что еще предстоит сделать
