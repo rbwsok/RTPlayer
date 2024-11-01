@@ -23,7 +23,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RTPlayer"
         android:requestLegacyExternalStorage="true"
-        tools:targetApi="28">
+        tools:targetApi="28"
+        tools:remove="android:appComponentFactory"
+        >
         <service
             android:name=".service.RTMediaService"
             android:foregroundServiceType="mediaPlayback"

@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:theme="@style/Theme.RTPlayer"
     tools:context=".preference.PreferencesActivity"
+    android:fitsSystemWindows="true"
     android:background="@drawable/background">
 
     <LinearLayout

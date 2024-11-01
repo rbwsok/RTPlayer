@@ -21,13 +21,15 @@ public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAd
 
     View.OnClickListener onClickListener;
 
-    static MediaServiceLink serviceLink;
+    MainActivity activity;
 
-    SoundsRecyclerAdapter(View.OnClickListener onClickListener, MediaServiceLink serviceLink)
+    SoundsRecyclerAdapter(View.OnClickListener onClickListener, MainActivity activity)
     {
         this.onClickListener = onClickListener;
         this.items = null;
-        this.serviceLink = serviceLink;
+        this.activity = activity;
+
+        RTApplication.getGlobalData().metadataExtractor.objectChange = this;
     }
 
     @Override
@@ -35,7 +37,7 @@ public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAd
         int result = R.layout.recycler_item_sound;
         FileItem item = items.get(position);
         if (item.isFile()) {
-            if (item.getFullName().equals(serviceLink.getCurrentPlayedSound())) {
+            if (item.getFullName().equals(activity.serviceLink.getCurrentPlayedSound())) {
                 result = R.layout.recycler_item_current_sound;
             }
         }
@@ -62,11 +64,12 @@ public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAd
         boolean playedFile = false;
 
         if (item.isFile()) {
-            item.getParallelMetadata(this, position); // получение данных при отображении - должно быть быстрее чем обход всех
+            // запрос данных для отображения
+            RTApplication.getGlobalData().metadataExtractor.getMetadata(item, position);
 
             holder.crossImage.setVisibility(View.VISIBLE);
 
-            if (item.getFullName().equals(serviceLink.getCurrentPlayedSound())) {
+            if (item.getFullName().equals(activity.serviceLink.getCurrentPlayedSound())) {
                 playedFile = true;
             }
 
@@ -170,7 +173,7 @@ public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAd
         FileItem item;
         for (int i = 0; i < items.size(); ++i) {
             item = items.get(i);
-            if (item.getFullName().equals(serviceLink.getCurrentPlayedSound())) {
+            if (item.getFullName().equals(activity.serviceLink.getCurrentPlayedSound())) {
                 result = i;
                 break;
             }
@@ -184,7 +187,7 @@ public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAd
         notifyDataSetChanged();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder
+    public class ViewHolder extends RecyclerView.ViewHolder
     {
         private final TextView songNameTextView, infoTextView;
         private final ImageView captionImage;
@@ -201,13 +204,13 @@ public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAd
             View.OnClickListener crossClick = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    RecyclerView.ViewHolder viewHolder = ((MainActivity)serviceLink.context).adapter.recyclerView.findContainingViewHolder(v);
+                    RecyclerView.ViewHolder viewHolder = activity.adapter.recyclerView.findContainingViewHolder(v);
                     if (viewHolder != null) {
                         int itemPosition = viewHolder.getLayoutPosition();
                         ArrayList<FileItem> fileList = RTApplication.getGlobalData().viewableFileList;
                         FileItem item = fileList.get(itemPosition);
 
-                        ((MainActivity) serviceLink.context).showDeleteFileDialog(item.getFullName());
+                        activity.showDeleteFileDialog(item.getFullName());
                     }
                 }
             };

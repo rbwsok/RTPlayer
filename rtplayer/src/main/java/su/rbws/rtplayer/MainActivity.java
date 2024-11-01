@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         filesRecyclerView = findViewById(R.id.SelectFolderRecyclerView);
         filesRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
-        adapter = new SoundsRecyclerAdapter(this, serviceLink);
+        adapter = new SoundsRecyclerAdapter(this, this);
         adapter.recyclerView = filesRecyclerView;
 
         View.OnClickListener shuffleClick = new View.OnClickListener() {
@@ -511,8 +511,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setFullscreen() {
+
         ConstraintLayout mainLayout;
         mainLayout = findViewById(R.id.main);
+
+
+//        ConstraintLayout.LayoutParams rootParams = (ConstraintLayout.LayoutParams)mainLayout.getLayoutParams();
+//        rootParams.topMargin = -statusBarHeight;
+//        mainLayout.setLayoutParams(rootParams);
+
 
         int backgroundMode = RTApplication.getDataBase().getBackgroundMode();
         if (backgroundMode == 0) {
@@ -532,7 +539,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // fullscreen
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
+            //WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
             getWindow().getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                             | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -544,6 +551,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             Drawable drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.background_1920);
             mainLayout.setBackground(drawable);
+            //mainLayout.setBackground(null);
+            //mainLayout.setBackgroundColor(getColor(R.color.red));
 
 /*            if (standartMusicInageView.getVisibility() != View.VISIBLE)
                 standartMusicInageView.setVisibility(View.VISIBLE);

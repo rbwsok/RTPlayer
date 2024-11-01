@@ -119,7 +119,7 @@ public class GlobalData {
                     viewableFileList.add(item);
                 }
 
-                // читаем информацию из файлов
+/*                // читаем информацию из файлов
                 int arraySize = viewableFileList.size();
                 if (arraySize > 11)
                     arraySize = 11;
@@ -127,7 +127,7 @@ public class GlobalData {
                 for (int i = 0; i < arraySize; ++i) {
                     if (viewableFileList.get(i).isFile())
                         viewableFileList.get(i).getMetadata();
-                }
+                }*/
             } // if (list != null) {
         } // if (f.isDirectory()) {
 
@@ -142,4 +142,6 @@ public class GlobalData {
             createViewableFileList(extp.getAbsolutePath());
         }
     }
+
+    MetadataExtractor metadataExtractor = new MetadataExtractor();
 }
