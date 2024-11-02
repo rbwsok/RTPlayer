@@ -1,11 +1,13 @@
 package su.rbws.rtplayer.service.soundplayer;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+import su.rbws.rtplayer.FileUtils;
 import su.rbws.rtplayer.RTApplication;
-import su.rbws.rtplayer.Utils;
 
 // список звуков
 public class SoundList {
@@ -25,8 +27,8 @@ public class SoundList {
 
         ArrayList<String> fileList = new ArrayList<>();
 
-        String folder = Utils.extractFolderName(currentPlayedSound);
-        if (!Utils.createFileList(folder, fileList))
+        String folder = FileUtils.extractFilePath(currentPlayedSound);
+        if (!FileUtils.createFileList(folder, fileList))
             return "";
 
         int currentindex = -1;
@@ -54,8 +56,8 @@ public class SoundList {
 
         ArrayList<String> fileList = new ArrayList<>();
 
-        String folder = Utils.extractFolderName(currentPlayedSound);
-        if (!Utils.createFileList(folder, fileList))
+        String folder = FileUtils.extractFilePath(currentPlayedSound);
+        if (!FileUtils.createFileList(folder, fileList))
             return "";
 
         int currentindex = -1;
@@ -83,19 +85,12 @@ public class SoundList {
 
         ArrayList<String> fileList = new ArrayList<>();
 
-        String folder = Utils.extractFolderName(currentPlayedSound);
-        if (!Utils.createFileList(folder, fileList))
+        String folder = FileUtils.extractFilePath(currentPlayedSound);
+        if (!FileUtils.createFileList(folder, fileList))
             return "";
 
-        int currentindex = -1;
-        for (int i = 0; i < fileList.size(); ++i) {
-            if (fileList.get(i).equals(currentPlayedSound)) {
-                currentindex = i;
-                break;
-            }
-        }
-
-        if (currentindex == -1)
+        int currentindex = fileList.indexOf(currentPlayedSound);
+        if (currentindex < 0)
             return "";
 
         // файл в этой же папке
@@ -106,216 +101,76 @@ public class SoundList {
         // воспроизведение в текущей папке закончено
         // 1. ищем вложенные папки
         // 2. если вложенных папок нет, то ищем папки в том же уровне
-        // 3. перебираем папки в том же уровне от первой до текущей
 
         ///////////////////////////////////////////////////////////
         // 1. ищем вложенные папки
-        ArrayList<String> folders = new ArrayList<>();
-        if (!Utils.createFolderList(folder, folders))
-            return "";
-
-        if (!folders.isEmpty()) {
-            for (int i = 0; i < folders.size(); ++i) {
-                Utils.createFileList(folders.get(i), fileList);
-
-                if (!fileList.isEmpty())
-                    return fileList.get(0);
-            }
-        }
-
-        ///////////////////////////////////////////////////////////
-        // 2. перебираем папки в том же уровне от текущей до конца
-        String scanfolder = Utils.removeLastFolder(folder);
-        folders.clear();
-        if (!Utils.createFolderList(scanfolder, folders))
-            return "";
-
-        int index = Utils.getIndex(folder, folders);
-        for (int i = index + 1; i < folders.size(); ++i) {
-            Utils.createFileList(folders.get(i), fileList);
-
-            if (!fileList.isEmpty())
-                return fileList.get(0);
-        }
-
-        ///////////////////////////////////////////////////////////
-        // 3. перебираем папки в том же уровне от первой до текущей
-        for (int i = 0; i < index + 1; ++i) {
-            Utils.createFileList(folders.get(i), fileList);
-
-            if (!fileList.isEmpty())
-                return fileList.get(0);
-        }
-        return "";
-    }
-
-    public static String getNextFileInAllFiles2() {
-        if (currentPlayedSound.isEmpty())
-            return "";
-
-        ArrayList<String> fileList = new ArrayList<>();
-
-        String folder = Utils.extractFolderName(currentPlayedSound);
-        if (!Utils.createFileList(folder, fileList))
-            return "";
-
-        int currentindex = -1;
-        for (int i = 0; i < fileList.size(); ++i) {
-            if (fileList.get(i).equals(currentPlayedSound)) {
-                currentindex = i;
-                break;
-            }
-        }
-
-        if (currentindex == -1)
-            return "";
-
-        // файл в этой же папке
-        if (currentindex + 1 < fileList.size()) {
-            return fileList.get(currentindex + 1);
-        }
-
-        // воспроизведение в текущей папке закончено
-        // 1. ищем вложенные папки
-        // 2. если вложенных папок нет, то ищем папки в том же уровне
-        // 3. перебираем папки в том же уровне от первой до текущей
-
-        ///////////////////////////////////////////////////////////
-        // 1. ищем вложенные папки
-        String res = scanForFiles(folder);
+        String res = findFirstFileInSubfolders(folder);
         if (!res.isEmpty())
             return res;
 
         ///////////////////////////////////////////////////////////
         // 2. перебираем папки в том же уровне от текущей до конца
-        String scanFolder = Utils.removeLastFolder(folder);
         ArrayList<String> folders = new ArrayList<>();
-        if (!Utils.createFolderList(scanFolder, folders))
-            return "";
+        String scanFolder = FileUtils.removeLastFolder(folder);
+        String baseFolder = FileUtils.excludePathDelimiter(RTApplication.getDataBase().getBaseDirectory());
+        int index, i;
 
-        int index = Utils.getIndex(folder, folders);
-        for (int i = index + 1; i < folders.size(); ++i) {
-            res = scanForFiles(folders.get(i));
-            if (!res.isEmpty())
-                return res;
-        }
-
-        scanAndFindNextFile(RTApplication.getDataBase().getBaseDirectory(), currentPlayedSound);
-
-        ///////////////////////////////////////////////////////////
-        // 3. перебираем папки в том же уровне от первой до текущей
-        for (int i = 0; i < index + 1; ++i) {
-            res = scanForFiles(folders.get(i));
-            if (!res.isEmpty())
-                return res;
-        }
-
-        ///////////////////////////////////////////////////////////
-        // 4. идем на уровень вверх
-
-        folder = scanFolder;
-
-        while (true) {
-            if (folder.equals(RTApplication.getDataBase().getBaseDirectory()))
-                break;
-
-            scanFolder = Utils.removeLastFolder(folder);
-            ///////////////////////////////////////////////////////////
-            // 5. файлы в папке
-            Utils.createFileList(scanFolder, fileList);
-            if (!fileList.isEmpty())
-                return fileList.get(0);
-
-            ///////////////////////////////////////////////////////////
-            // 6. перебираем папки в том же уровне от текущей до конца
-            folders.clear();
-            if (!Utils.createFolderList(scanFolder, folders))
-                return "";
-
-            index = Utils.getIndex(folder, folders);
-            for (int i = index + 1; i < folders.size(); ++i) {
-                Utils.createFileList(folders.get(i), fileList);
-
-                if (!fileList.isEmpty())
-                    return fileList.get(0);
+        while (!folder.equals(baseFolder)) {
+            FileUtils.createFolderList(scanFolder, folders);
+            index = folders.indexOf(folder);
+            if (index >= 0) {
+                i = index + 1;
+                while (i < folders.size()) {
+                    res = findFirstFileInFolder(folders.get(i));
+                    if (!res.isEmpty())
+                        return res;
+                    i++;
+                }
             }
-
-            ///////////////////////////////////////////////////////////
-            // 7. перебираем папки в том же уровне от первой до текущей
-            for (int i = 0; i < index + 1; ++i) {
-                Utils.createFileList(folders.get(i), fileList);
-
-                if (!fileList.isEmpty())
-                    return fileList.get(0);
-            }
-
-            ///////////////////////////////////////////////////////////
-            // 8. идем на уровень вверх
 
             folder = scanFolder;
+            scanFolder = FileUtils.removeLastFolder(folder);
         }
+
+        res = findFirstFileInFolder(folder);
+        if (!res.isEmpty())
+            return res;
+
+        res = findFirstFileInSubfolders(folder);
+        if (!res.isEmpty())
+            return res;
+
         return "";
-/*
-        ///////////////////////////////////////////////////////////
-        // 1. ищем вложенные папки
-        ArrayList<String> list = new ArrayList<>();
-        if (!Utils.CreateFolderList(folder, list))
-            return "";
-
-        if (!list.isEmpty()) {
-            for (int i = 0; i < list.size(); ++i) {
-                Utils.CreateFileList(list.get(i), filelist);
-
-                if (!filelist.isEmpty())
-                    return filelist.get(0);
-            }
-        }
-
-        ///////////////////////////////////////////////////////////
-        // 2. перебираем папки в том же уровне от текущей до конца
-        String scanfolder = Utils.RemoveLastFolder(folder);
-        list = new ArrayList<>();
-        if (!Utils.CreateFolderList(scanfolder, list))
-            return "";
-
-        int index = Utils.GetIndex(folder, list);
-        for (int i = index + 1; i < list.size(); ++i) {
-            Utils.CreateFileList(list.get(i), filelist);
-
-            if (!filelist.isEmpty())
-                return filelist.get(0);
-        }
-
-        ///////////////////////////////////////////////////////////
-        // 3. перебираем папки в том же уровне от первой до текущей
-        list.clear();
-        if (!Utils.CreateFolderList(scanfolder, list))
-            return "";
-
-        index = Utils.GetIndex(folder, list);
-        for (int i = 0; i < index + 1; ++i) {
-            Utils.CreateFileList(list.get(i), filelist);
-
-            if (!filelist.isEmpty())
-                return filelist.get(0);
-        }
-        return "";*/
     }
 
-    // рекурсивный поиск файлов
-    private static String scanForFiles(String folder) {
-        ArrayList<String> folders = new ArrayList<>();
+    // рекурсивный поиск файлов в поддиректориях
+    private static String findFirstFileInFolder(String folder) {
         ArrayList<String> files = new ArrayList<>();
 
-        if (!Utils.createFolderList(folder, folders))
+        if (!FileUtils.createFileList(folder, files))
+            return "";
+
+        if (!files.isEmpty())
+            return files.get(0);
+
+        return "";
+    }
+
+    // рекурсивный поиск файлов в поддиректориях
+    @NonNull
+    private static String findFirstFileInSubfolders(String folder) {
+        ArrayList<String> folders = new ArrayList<>();
+        String res;
+
+        if (!FileUtils.createFolderList(folder, folders))
             return "";
 
         for (String f: folders) {
-            Utils.createFileList(f, files);
-            if (!files.isEmpty())
-                return files.get(0);
+            res = findFirstFileInFolder(f);
+            if (!res.isEmpty())
+                return res;
 
-            String res = scanForFiles(f);
+            res = findFirstFileInSubfolders(f);
             if (!res.isEmpty())
                 return res;
         }
@@ -323,32 +178,37 @@ public class SoundList {
         return "";
     }
 
-    // поиск следующего файла (через построение полного списка файлов)
-    private static String scanAndFindNextFile(String folder, String filename) {
-        ArrayList<String> folders = new ArrayList<>();
+    // рекурсивный поиск файлов в поддиректориях
+    private static String findLastFileInFolder(String folder) {
         ArrayList<String> files = new ArrayList<>();
 
-        if (!Utils.createFolderList(folder, folders))
+        if (!FileUtils.createFileList(folder, files))
             return "";
 
-        boolean find = false;
-        int pos;
+        if (!files.isEmpty())
+            return files.get(files.size() - 1);
 
-        for (String f: folders) {
-            Utils.createFileList(f, files);
+        return "";
+    }
 
-            if (find = true && files.size() > 0)
-                return files.get(0);
+    // рекурсивный поиск файлов в поддиректориях
+    @NonNull
+    private static String findLastFileInSubfolders(String folder) {
+        ArrayList<String> folders = new ArrayList<>();
+        String res;
 
-            pos = files.indexOf(filename);
-            if (pos >= 0) {
-                // в той же папке
-                if (pos < files.size() - 1)
-                    return files.get(pos + 1);
-                find = true;
-            }
+        if (!FileUtils.createFolderList(folder, folders))
+            return "";
 
-            String res = scanAndFindNextFile(f, filename);
+        String f;
+        for (int i = folders.size() - 1; i >= 0; --i) {
+            f = folders.get(i);
+
+            res = findLastFileInSubfolders(f);
+            if (!res.isEmpty())
+                return res;
+
+            res = findLastFileInFolder(f);
             if (!res.isEmpty())
                 return res;
         }
@@ -362,79 +222,66 @@ public class SoundList {
 
         ArrayList<String> fileList = new ArrayList<>();
 
-        String folder = Utils.extractFolderName(currentPlayedSound);
-        if (!Utils.createFileList(folder, fileList))
+        String folder = FileUtils.extractFilePath(currentPlayedSound);
+        if (!FileUtils.createFileList(folder, fileList))
             return "";
 
-        int currentindex = -1;
-        for (int i = 0; i < fileList.size(); ++i) {
-            if (fileList.get(i).equals(currentPlayedSound)) {
-                currentindex = i;
-                break;
-            }
-        }
-
-        if (currentindex == -1)
+        int currentindex = fileList.indexOf(currentPlayedSound);
+        if (currentindex < 0)
             return "";
 
-        // файл в этой же папке
+        // предыдущий файл в этой же папке
         if (currentindex - 1 >= 0) {
             return fileList.get(currentindex - 1);
         }
 
         // воспроизведение в текущей папке закончено
-        // 1. ищем вложенные папки
-        // 2. если вложенных папок нет, то ищем папки в том же уровне
-        // 3. перебираем папки в том же уровне от последней до текущей
+        ArrayList<String> folders = new ArrayList<>();
+        String scanFolder = FileUtils.removeLastFolder(folder);
+        String baseFolder = FileUtils.excludePathDelimiter(RTApplication.getDataBase().getBaseDirectory());
+        int index, i;
+        String res;
 
-        ///////////////////////////////////////////////////////////
-        // 1. ищем вложенные папки
-        ArrayList<String> list = new ArrayList<>();
-        if (!Utils.createFolderList(folder, list))
-            return "";
+        while (!folder.equals(baseFolder)) {
+            FileUtils.createFolderList(scanFolder, folders);
+            index = folders.indexOf(folder);
+            if (index >= 0) {
+                i = index - 1;
+                if (i >= 0) {
+                    while (i >= 0) {
+                        res = findLastFileInSubfolders(folders.get(i));
+                        if (!res.isEmpty())
+                            return res;
 
-        if (!list.isEmpty()) {
-            for (int i = 0; i < list.size(); ++i) {
-                Utils.createFileList(list.get(i), fileList);
-
-                if (!fileList.isEmpty())
-                    return fileList.get(fileList.size() - 1);
+                        res = findLastFileInFolder(folders.get(i));
+                        if (!res.isEmpty())
+                            return res;
+                        --i;
+                    }
+                }
+                else {
+                    res = findLastFileInFolder(scanFolder);
+                    if (!res.isEmpty())
+                        return res;
+                }
             }
+
+            folder = scanFolder;
+            scanFolder = FileUtils.removeLastFolder(folder);
         }
 
-        ///////////////////////////////////////////////////////////
-        // 3. перебираем папки в том же уровне от текущей до первой
-        String scanFolder = Utils.removeLastFolder(folder);
-        list = new ArrayList<>();
-        if (!Utils.createFolderList(scanFolder, list))
-            return "";
+        res = findLastFileInSubfolders(folder);
+        if (!res.isEmpty())
+            return res;
 
-        int index = Utils.getIndex(folder, list);
-        for (int i = index - 1; i >= 0; --i) {
-            Utils.createFileList(list.get(i), fileList);
-
-            if (!fileList.isEmpty())
-                return fileList.get(fileList.size() - 1);
-        }
-
-        ///////////////////////////////////////////////////////////
-        // 3. перебираем папки в том же уровне от последней до текущей
-        list.clear();
-        if (!Utils.createFolderList(scanFolder, list))
-            return "";
-
-        index = Utils.getIndex(folder, list);
-        for (int i = list.size() - 1; i >= index; --i) {
-            Utils.createFileList(list.get(i), fileList);
-
-            if (!fileList.isEmpty())
-                return fileList.get(fileList.size() - 1);
-        }
+        res = findLastFileInFolder(folder);
+        if (!res.isEmpty())
+            return res;
 
         return "";
     }
 
-    private static ArrayList<String> recentFileList = new ArrayList<>();
+    private static final ArrayList<String> recentFileList = new ArrayList<>();
 
     public static String getRandomFile() {
 
@@ -443,8 +290,8 @@ public class SoundList {
 
         ArrayList<String> fileList = new ArrayList<>();
 
-        String folder = Utils.extractFolderName(currentPlayedSound);
-        if (!Utils.createFileList(folder, fileList))
+        String folder = FileUtils.extractFilePath(currentPlayedSound);
+        if (!FileUtils.createFileList(folder, fileList))
             return "";
 
         if (fileList.isEmpty())
@@ -462,20 +309,15 @@ public class SoundList {
             maxDepthRecentList = fileList.size() - 1;
 
         // обрезаем список до нужного размера
-        if (recentFileList.size() > maxDepthRecentList) {
-            for (int i = 0; i < recentFileList.size() - maxDepthRecentList; ++i) {
-                recentFileList.remove(0);
-            }
-        }
+        if (recentFileList.size() - maxDepthRecentList > 0)
+            recentFileList.subList(0, recentFileList.size() - maxDepthRecentList).clear();
 
         String newName;
         int newIndex;
-        while (true) {
+        do {
             newIndex = randomSystem.nextInt(fileList.size()); // максимум не входит в диапазон
             newName = fileList.get(newIndex);
-            if (!recentFileList.contains(newName))
-                break;
-        }
+        } while (recentFileList.contains(newName));
 
         return newName;
     }

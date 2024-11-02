@@ -35,11 +35,11 @@ public class GlobalData {
 
         viewableFileList.clear();
 
-        baseDirectory = Utils.excludePathDelimiter(RTApplication.getDataBase().getBaseDirectory());
-        additionalDirectory = Utils.excludePathDelimiter(RTApplication.getDataBase().getAdditionalDirectory());
+        baseDirectory = FileUtils.excludePathDelimiter(RTApplication.getDataBase().getBaseDirectory());
+        additionalDirectory = FileUtils.excludePathDelimiter(RTApplication.getDataBase().getAdditionalDirectory());
 
-        baseDirectoryWithOutLastFolder = Utils.removeLastFolder(baseDirectory);
-        additionalDirectoryWithOutLastFolder = Utils.removeLastFolder(additionalDirectory);
+        baseDirectoryWithOutLastFolder = FileUtils.removeLastFolder(baseDirectory);
+        additionalDirectoryWithOutLastFolder = FileUtils.removeLastFolder(additionalDirectory);
 
         if (additionalDirectory.isEmpty()) {
             // root состоит из содержимого baseDirectory
@@ -69,16 +69,16 @@ public class GlobalData {
         if (needRootDirectory) {
             baseDirectory = RTApplication.getDataBase().getBaseDirectory();
             item = new FileItem();
-            item.name = Utils.extractLastFolderName(baseDirectory);
-            item.location = Utils.removeLastFolder(baseDirectory);
+            item.name = FileUtils.extractLastFolder(baseDirectory);
+            item.location = FileUtils.removeLastFolder(baseDirectory);
             item.state = FileItem.FileItemType.fiDirectory;
             viewableFileList.add(item);
 
             additionalDirectory = RTApplication.getDataBase().getAdditionalDirectory();
             if (!additionalDirectory.isEmpty()) {
                 item = new FileItem();
-                item.name = Utils.extractLastFolderName(additionalDirectory);
-                item.location = Utils.removeLastFolder(additionalDirectory);
+                item.name = FileUtils.extractLastFolder(additionalDirectory);
+                item.location = FileUtils.removeLastFolder(additionalDirectory);
                 item.state = FileItem.FileItemType.fiDirectory;
                 viewableFileList.add(item);
             }
@@ -89,7 +89,7 @@ public class GlobalData {
         if (needBackToParentDirectory) {
             item = new FileItem();
             item.name = "[ .. ]";
-            item.location = Utils.removeLastFolder(path);
+            item.location = FileUtils.removeLastFolder(path);
 
             item.state = FileItem.FileItemType.fiParentDirectory;
             viewableFileList.add(item);
@@ -102,7 +102,7 @@ public class GlobalData {
             if (list != null) {
                 for (File file : list) {
                     if (file.isFile()) {
-                        fileext = Utils.extractFileExt(file.getName());
+                        fileext = FileUtils.extractFileExt(file.getName());
                         if (!fileext.equalsIgnoreCase(".mp3")) {
                             continue;
                         }
@@ -110,7 +110,7 @@ public class GlobalData {
 
                     item = new FileItem();
                     item.name = file.getName();
-                    item.location = Utils.removeLastFolder(file.getAbsolutePath());
+                    item.location = FileUtils.removeLastFolder(file.getAbsolutePath());
                     if (file.isFile())
                         item.state = FileItem.FileItemType.fiFile;
                     if (file.isDirectory())

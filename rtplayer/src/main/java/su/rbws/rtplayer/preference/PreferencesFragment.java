@@ -18,6 +18,7 @@ import java.util.Map;
 import su.rbws.rtplayer.R;
 import su.rbws.rtplayer.RTApplication;
 import su.rbws.rtplayer.Utils;
+import su.rbws.rtplayer.FileUtils;
 
 public class PreferencesFragment extends PreferenceFragmentCompat {
 
@@ -148,7 +149,7 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
                 case ptMusicFolder:
                     valueString = item.value;
                     if (valueString.isEmpty() || valueString.equals("/") ||
-                        !Utils.directoryExists(valueString))
+                        !FileUtils.directoryExists(valueString))
                         valueString = "";
 
                     if (valueString.isEmpty()) {
@@ -162,7 +163,7 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
                     break;
                 case ptAdditionalMusicFolder:
                     valueString = item.value;
-                    if (!valueString.isEmpty() && !Utils.directoryExists(valueString))
+                    if (!valueString.isEmpty() && !FileUtils.directoryExists(valueString))
                         valueString = "";
 
                     if (valueString.isEmpty())

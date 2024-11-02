@@ -11,6 +11,7 @@ import java.util.Map;
 import su.rbws.rtplayer.R;
 import su.rbws.rtplayer.RTApplication;
 import su.rbws.rtplayer.Utils;
+import su.rbws.rtplayer.FileUtils;
 
 public class DataBasePreferences extends DataBaseAbstract {
     public SharedPreferences sharedPreferences;
@@ -431,7 +432,7 @@ public class DataBasePreferences extends DataBaseAbstract {
 
                     if (item.value.isEmpty() ||
                             item.value.equals("/") ||
-                            !Utils.directoryExists(item.value)) {
+                            !FileUtils.directoryExists(item.value)) {
                         item.value = rootexternalpath;
                         editor = sharedPreferences.edit();
                         editor.putString(item.name, item.value);

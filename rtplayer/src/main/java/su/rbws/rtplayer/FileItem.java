@@ -58,7 +58,7 @@ public class FileItem implements Comparable<FileItem> {
     public FileItemType state; // 0 - выход на уроверь вверх, 1 - директория, 2 - файл,
 
     public String getFullName() {
-        return Utils.excludePathDelimiter(this.location) + "/" + this.name;
+        return FileUtils.excludePathDelimiter(this.location) + "/" + this.name;
     }
 
     public boolean isDirectory() { return state == FileItemType.fiDirectory; }

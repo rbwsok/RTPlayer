@@ -86,8 +86,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     String lastFile = RTApplication.getDataBase().getLastPlayedFile();
                     if (!lastFile.isEmpty()) {
                         String newFile = serviceLink.getCurrentPlayedSound();
-                        lastFile = Utils.extractFolderName(lastFile);
-                        newFile = Utils.extractFolderName(newFile);
+                        lastFile = FileUtils.extractFilePath(lastFile);
+                        newFile = FileUtils.extractFilePath(newFile);
 
                         if (!lastFile.equals(newFile)) {
                             RTApplication.getGlobalData().createViewableFileList(newFile);
@@ -670,7 +670,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (RTApplication.getDataBase().getPlayOnStartMode() != 0 && firstStart) {
             String filename = RTApplication.getDataBase().getLastPlayedFile();
             if (!filename.isEmpty()) {
-                RTApplication.getGlobalData().createViewableFileList(Utils.extractFolderName(filename));
+                RTApplication.getGlobalData().createViewableFileList(FileUtils.extractFilePath(filename));
                 ArrayList<FileItem> FileList = RTApplication.getGlobalData().viewableFileList;
 
                 if (serviceLink.isMediaServiceReady()) {

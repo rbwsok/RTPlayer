@@ -48,9 +48,9 @@ public class DeleteFileDialog extends DialogFragment {
         buttonYes = v.findViewById(R.id.buttonYes);
         buttonYes.setOnClickListener(buttonClick);
         fileNameTextView = v.findViewById(R.id.FileNameTextView);
-        fileNameTextView.setText(Utils.extractFileName(fullfilename));
+        fileNameTextView.setText(FileUtils.extractFileName(fullfilename));
         fileLocationTextView = v.findViewById(R.id.FileLocationTextView);
-        fileLocationTextView.setText(Utils.extractFolderName(fullfilename));
+        fileLocationTextView.setText(FileUtils.extractFilePath(fullfilename));
         return v;
     }
 

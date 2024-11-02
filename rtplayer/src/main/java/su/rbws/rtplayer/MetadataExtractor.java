@@ -120,7 +120,7 @@ public class MetadataExtractor {
         try {
             metaRetriver.setDataSource(item.name);
 
-            Log.i("rtplayer_tag", "get metadata " + item.name);
+            //Log.i("rtplayer_tag", "get metadata " + item.name);
 
             item.album = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
             item.artist = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
@@ -140,7 +140,7 @@ public class MetadataExtractor {
             item.artist = "";
         if (item.title == null) {
             if (item.name != null)
-                item.title = Utils.extractFileNameNoExt(item.name);
+                item.title = FileUtils.extractFileName(item.name, false);
             else
                 item.title = "";
 
