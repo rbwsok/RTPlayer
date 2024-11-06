@@ -228,8 +228,8 @@ public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAd
         {
             @Override
             public void run() {
-                //notifyDataSetChanged();
-                notifyItemChanged(position);
+                notifyDataSetChanged();
+                //notifyItemChanged(position);
             }
         });
 

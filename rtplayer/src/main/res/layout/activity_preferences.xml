@@ -6,14 +6,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/Theme.RTPlayer"
-    tools:context=".preference.PreferencesActivity"
-    android:fitsSystemWindows="true"
-    android:background="@drawable/background">
+    tools:context=".preference.PreferencesActivity">
 
     <LinearLayout
         android:id="@+id/linearlayout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

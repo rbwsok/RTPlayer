@@ -51,8 +51,6 @@ public class PreferencesActivity extends AppCompatActivity implements SharedPref
 
         setContentView(R.layout.activity_preferences);
 
-        //CreateItems();
-
         ImageView backImageView;
         FrameLayout preferenceFrameLayout;
 
@@ -75,28 +73,13 @@ public class PreferencesActivity extends AppCompatActivity implements SharedPref
         ft.replace(preferenceFrameLayout.getId(), preferencesFragment);
         ft.commit();
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setNavigationBarColor(getColor(R.color.BackgroundColor));
-            getWindow().setStatusBarColor(getColor(R.color.BackgroundColor));
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
-        }
-
-        setFullscreen();
+        Utils.setFullscreen(this, this.findViewById(R.id.main));
 
         linearLayout = findViewById(R.id.linearlayout);
 
-        Rect rectangle = new Rect();
-        Window window = this.getWindow();
-        window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
-
         captionTextView = findViewById(R.id.caption_preferences);
-        /*captionTextView.setText(getString(R.string.preferences) + " (" + getString(R.string.version) + " " + RTApplication.version + " " +
-                getString(R.string.window_size) + " " + Integer.toString(rectangle.width()) + "x" + Integer.toString(rectangle.height()) +
-                ")");*/
         captionTextView.setText(RTApplication.getContext().getString(R.string.preferences) + " (" + RTApplication.getContext().getString(R.string.version) + " " + RTApplication.version +
-      //           " " + getString(R.string.window_size) + " " + Integer.toString(rectangle.width()) + "x" + Integer.toString(rectangle.height()) +
-                ")");
+                      ")");
 
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams)linearLayout.getLayoutParams();
         params.topMargin = RTApplication.getDataBase().getTopSpace();
@@ -111,36 +94,6 @@ public class PreferencesActivity extends AppCompatActivity implements SharedPref
             return insets;
 
         });
-    }
-
-    private void setFullscreen() {
-        ConstraintLayout mainLayout;
-        mainLayout = findViewById(R.id.main);
-
-        int backgroundMode = RTApplication.getDataBase().getBackgroundMode();
-        if (backgroundMode == 0) {
-            getWindow().getDecorView().setSystemUiVisibility(0);
-            Drawable drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.background);
-            mainLayout.setBackground(drawable);
-        }
-        else
-        if (backgroundMode == 1) {
-            // fullscreen
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_LOW_PROFILE
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE);
-
-            Drawable drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.background_1920);
-            mainLayout.setBackground(drawable);
-        }
     }
 
     @Override

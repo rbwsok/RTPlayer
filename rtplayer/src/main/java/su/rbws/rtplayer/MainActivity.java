@@ -442,13 +442,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         setContentView(R.layout.activity_main);
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setNavigationBarColor(getColor(R.color.BackgroundColor));
-            getWindow().setStatusBarColor(getColor(R.color.BackgroundColor));
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
-        }
-
         setupUIElements();
 
         applyPreferences();
@@ -510,71 +503,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playPauseImageView.setImageDrawable(drawable);
     }
 
-    private void setFullscreen() {
-
-        ConstraintLayout mainLayout;
-        mainLayout = findViewById(R.id.main);
-
-
-//        ConstraintLayout.LayoutParams rootParams = (ConstraintLayout.LayoutParams)mainLayout.getLayoutParams();
-//        rootParams.topMargin = -statusBarHeight;
-//        mainLayout.setLayoutParams(rootParams);
-
-
-        int backgroundMode = RTApplication.getDataBase().getBackgroundMode();
-        if (backgroundMode == 0) {
-            getWindow().getDecorView().setSystemUiVisibility(0);
-            Drawable drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.background);
-            mainLayout.setBackground(drawable);
-
-            if (standartMusicInageView.getVisibility() != View.GONE)
-                standartMusicInageView.setVisibility(View.GONE);
-            if (standartTelephoneInageView.getVisibility() != View.GONE)
-                standartTelephoneInageView.setVisibility(View.GONE);
-            if (standartHomeInageView.getVisibility() != View.GONE)
-                standartHomeInageView.setVisibility(View.GONE);
-        }
-        else
-        if (backgroundMode == 1) {
-            // fullscreen
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            //WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_LOW_PROFILE
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE);
-
-            Drawable drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.background_1920);
-            mainLayout.setBackground(drawable);
-            //mainLayout.setBackground(null);
-            //mainLayout.setBackgroundColor(getColor(R.color.red));
-
-/*            if (standartMusicInageView.getVisibility() != View.VISIBLE)
-                standartMusicInageView.setVisibility(View.VISIBLE);
-            if (standartTelephoneInageView.getVisibility() != View.VISIBLE)
-                standartTelephoneInageView.setVisibility(View.VISIBLE);
-            if (standartHomeInageView.getVisibility() != View.VISIBLE)
-                standartHomeInageView.setVisibility(View.VISIBLE);
-
- */
-            if (standartMusicInageView.getVisibility() != View.GONE)
-                standartMusicInageView.setVisibility(View.GONE);
-            if (standartTelephoneInageView.getVisibility() != View.GONE)
-                standartTelephoneInageView.setVisibility(View.GONE);
-            if (standartHomeInageView.getVisibility() != View.GONE)
-                standartHomeInageView.setVisibility(View.GONE);
-        }
-    }
-
     public void applyPreferences() {
         RTApplication.getDataBase().getAllPreferences();
 
-        setFullscreen();
+        if (standartMusicInageView.getVisibility() != View.GONE)
+            standartMusicInageView.setVisibility(View.GONE);
+        if (standartTelephoneInageView.getVisibility() != View.GONE)
+            standartTelephoneInageView.setVisibility(View.GONE);
+        if (standartHomeInageView.getVisibility() != View.GONE)
+            standartHomeInageView.setVisibility(View.GONE);
+
+        Utils.setFullscreen(this, this.findViewById(R.id.main));
 
         // обновление видимости панелей
 
