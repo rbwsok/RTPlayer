@@ -19,7 +19,7 @@ public class DataBaseAbstract {
         public String name;                         // уникальное имя
         public String defaultValue;                 // значение по умолчанию
         public int entries;                         // список уникальных значений ключей для списков
-        public int entryValues;                    // список значений для списков
+        public int entryValues;                     // список значений для списков
         public PreferenceValueType preferenceType;  // тип
         public boolean isShow;                      // отображение в списке настроек
         public String title;                        // отображаемое название

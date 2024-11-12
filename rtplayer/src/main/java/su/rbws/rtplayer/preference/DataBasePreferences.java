@@ -37,7 +37,6 @@ public class DataBasePreferences extends DataBaseAbstract {
     public final static String PREFERENCE_NAME_REMAP_KEYS_DATA = "remap_keys_data_preference";
     public final static String PREFERENCE_NAME_FTP_SERVER = "ftp_server_preference";
     public final static String PREFERENCE_NAME_FTP_SERVER_PORT = "ftp_server_port_preference";
-    public final static String PREFERENCE_NAME_BACKGROUND_MODE = "background_preference";
     public final static String PREFERENCE_NAME_BACKGROUND_IMAGE = "background_image_preference";
 
     private void CreateItems() {
@@ -59,16 +58,6 @@ public class DataBasePreferences extends DataBaseAbstract {
         item.isShow = false;
         add(item);
 
-        // задний фон
-        item = new PreferenceItem();
-        item.name = PREFERENCE_NAME_BACKGROUND_MODE;
-        item.defaultValue = "0";
-        item.preferenceType = PreferenceValueType.ptBackgroundMode;
-        item.isShow = true;
-        item.title = RTApplication.getContext().getString(R.string.background_mode);
-        item.entries = R.array.background_entries;
-        item.entryValues = R.array.background_entry_values;
-        add(item);
         // задний фон
         item = new PreferenceItem();
         item.name = PREFERENCE_NAME_BACKGROUND_IMAGE;
@@ -383,10 +372,6 @@ public class DataBasePreferences extends DataBaseAbstract {
 
     public int getInterruptAction() {
         return getValueAsInt(PREFERENCE_NAME_INTERRUPT_ACTION);
-    }
-
-    public int getBackgroundMode() {
-        return getValueAsInt(PREFERENCE_NAME_BACKGROUND_MODE);
     }
 
     public int getBackgroundImage() {

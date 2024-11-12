@@ -14,4 +14,7 @@
     <color name="FontColorDark">#FF909090</color>
     <color name="FontColorDark2">#FFC0C0C0</color>
     <color name="button_transparent">#80FF0000</color>
+    <color name="transparent">#00000000</color>
+
+    <color name="red2">#70FF0000</color>
 </resources>

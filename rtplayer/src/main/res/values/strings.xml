@@ -50,8 +50,7 @@
     <string name="media_buttons_select_action">Выберите действие</string>
     <string name="version">Версия:</string>
     <string name="window_size">Размер:</string>
-    <string name="background_mode">Режим фона</string>
-    <string name="background_image">Изображение фона</string>
+    <string name="background_image">Изображение фона (темы необходимо переключать вручную)</string>
     <string-array name="toolbar_position_entries">
         <item>Слева</item>
         <item>Справа</item>
@@ -116,20 +115,13 @@
         <item>3</item>
         <item>4</item>
     </string-array>
-    <string-array name="background_entries">
-        <item>Стандарт 1460x720</item>
-        <item>Полный экран 1920x720 (забавно глючит)</item>
-    </string-array>
-    <string-array name="background_entry_values">
-        <item>0</item>
-        <item>1</item>
-    </string-array>
     <string-array name="background_image_entries">
-        <item>Classic</item>
-        <item>Style</item>
-        <item>Sport</item>
+        <item>Classic 1</item>
+        <item>Classic 2</item>
+        <item>Style 1</item>
         <item>Style 2</item>
-        <item>Style 3</item>
+        <item>Stream 1</item>
+        <item>Stream 2</item>
     </string-array>
     <string-array name="background_image_entry_values">
         <item>0</item>
@@ -137,5 +129,6 @@
         <item>2</item>
         <item>3</item>
         <item>4</item>
+        <item>5</item>
     </string-array>
 </resources>

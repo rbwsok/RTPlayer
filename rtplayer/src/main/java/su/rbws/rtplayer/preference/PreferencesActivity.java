@@ -1,14 +1,10 @@
 package su.rbws.rtplayer.preference;
 
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -17,9 +13,8 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.content.SharedPreferences;
@@ -73,7 +68,7 @@ public class PreferencesActivity extends AppCompatActivity implements SharedPref
         ft.replace(preferenceFrameLayout.getId(), preferencesFragment);
         ft.commit();
 
-        Utils.setFullscreen(this, this.findViewById(R.id.main));
+        Utils.setImageBackground(this, this.findViewById(R.id.main));
 
         linearLayout = findViewById(R.id.linearlayout);
 
@@ -83,14 +78,20 @@ public class PreferencesActivity extends AppCompatActivity implements SharedPref
 
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams)linearLayout.getLayoutParams();
         params.topMargin = RTApplication.getDataBase().getTopSpace();
-        params.leftMargin = RTApplication.getDataBase().getLeftSpace();
+        params.leftMargin = RTApplication.ScreenAuto.INSETS_LEFT -
+                RTApplication.ScreenAuto.PADDING_LEFT +
+                RTApplication.getDataBase().getLeftSpace();
         params.rightMargin = RTApplication.getDataBase().getRightSpace();
         params.bottomMargin = RTApplication.getDataBase().getBottomSpace();
         linearLayout.setLayoutParams(params);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            v.setPadding(RTApplication.ScreenAuto.PADDING_LEFT,
+                    RTApplication.ScreenAuto.PADDING_TOP,
+                    RTApplication.ScreenAuto.PADDING_RIGHT,
+                    RTApplication.ScreenAuto.PADDING_BOTTOM
+            );
+
             return insets;
 
         });
@@ -127,6 +128,9 @@ public class PreferencesActivity extends AppCompatActivity implements SharedPref
             linearLayout.setLayoutParams(params);
         }
 
+        if (key.equals(DataBasePreferences.PREFERENCE_NAME_BACKGROUND_IMAGE)) {
+            Utils.setImageBackground(this, this.findViewById(R.id.main));
+        }
     }
 
     @Override

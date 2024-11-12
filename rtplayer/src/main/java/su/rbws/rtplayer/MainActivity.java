@@ -17,10 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,7 +27,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.SeekBar;
@@ -56,6 +52,61 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ImageView standartMusicInageView, standartTelephoneInageView, standartHomeInageView;
 
     MediaServiceLink serviceLink;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // расположение activity на дисплее
+        // -- 288 -- 1536 -- 96 --
+
+        if (!PermissionUtils.hasPermissions(this))
+            PermissionUtils.requestPermissions(this);
+
+        serviceLink = new MediaServiceLink(this,
+                new MediaServiceLink.IMediaServiceLinkInterface() {
+                    @Override
+                    public void onServiceConnect() {
+                        if (serviceLink.isMediaServiceReady()) {
+                            filesRecyclerView.setAdapter(adapter);
+
+                            if (!applyNoShowPreferences()) {
+                                RTApplication.getGlobalData().createViewableFileList();
+                                adapter.update(RTApplication.getGlobalData().viewableFileList);
+                            }
+
+                            serviceLink.getMediaButtonsMapper();
+                        }
+                    }
+
+                    @Override
+                    public void onPlaybackStateChanged(PlaybackStateCompat state) {
+                        updateUI(state);
+                    }
+                }
+        );
+
+        EdgeToEdge.enable(this);
+
+        setContentView(R.layout.activity_main);
+
+        setupUIElements();
+
+        applyPreferences();
+
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+
+            v.setPadding(RTApplication.ScreenAuto.PADDING_LEFT,
+                    RTApplication.ScreenAuto.PADDING_TOP,
+                    RTApplication.ScreenAuto.PADDING_RIGHT,
+                    RTApplication.ScreenAuto.PADDING_BOTTOM
+                    );
+
+            return insets;
+        });
+    }
 
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -404,57 +455,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }.start();
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        // расположение activity на дисплее
-        // --- 285 --- + --- 1460 --- + -- 175
-        // --180 --- + --- 1740 ---
-
-        if (!PermissionUtils.hasPermissions(this))
-            PermissionUtils.requestPermissions(this);
-
-        serviceLink = new MediaServiceLink(this,
-                new MediaServiceLink.IMediaServiceLinkInterface() {
-                    @Override
-                    public void onServiceConnect() {
-                        if (serviceLink.isMediaServiceReady()) {
-                            filesRecyclerView.setAdapter(adapter);
-
-                            if (!applyNoShowPreferences()) {
-                                RTApplication.getGlobalData().createViewableFileList();
-                                adapter.update(RTApplication.getGlobalData().viewableFileList);
-                            }
-
-                            serviceLink.getMediaButtonsMapper();
-                        }
-                    }
-
-                    @Override
-                    public void onPlaybackStateChanged(PlaybackStateCompat state) {
-                        updateUI(state);
-                    }
-                }
-        );
-
-        EdgeToEdge.enable(this);
-
-        setContentView(R.layout.activity_main);
-
-        setupUIElements();
-
-        applyPreferences();
-
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-    }
-
     public void exitProgram() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             this.finishAndRemoveTask();
@@ -513,7 +513,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (standartHomeInageView.getVisibility() != View.GONE)
             standartHomeInageView.setVisibility(View.GONE);
 
-        Utils.setFullscreen(this, this.findViewById(R.id.main));
+        Utils.setImageBackground(this, this.findViewById(R.id.main));
 
         // обновление видимости панелей
 
@@ -587,7 +587,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         topSpace.setLayoutParams(params);
 
         params = leftSpace.getLayoutParams();
-        params.width = RTApplication.getDataBase().getLeftSpace();
+        params.width = RTApplication.ScreenAuto.INSETS_LEFT -
+                RTApplication.ScreenAuto.PADDING_LEFT +
+                RTApplication.getDataBase().getLeftSpace();
         leftSpace.setLayoutParams(params);
 
         params = rightSpace.getLayoutParams();
