@@ -1,6 +1,5 @@
 package su.rbws.rtplayer;
 
-import android.app.Instrumentation;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -24,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -48,8 +46,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     SeekBar soundSeekBar;
     Thread seekBarThread;
     SoundsRecyclerAdapter adapter;
-
-    ImageView standartMusicInageView, standartTelephoneInageView, standartHomeInageView;
 
     MediaServiceLink serviceLink;
 
@@ -128,9 +124,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     duration = serviceLink.getDuration();
                     positionTextView.setText(timeFormat(position));
                     durationSoundTextView.setText(timeFormat(duration));
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        soundSeekBar.setMin(0);
-                    }
+                    soundSeekBar.setMin(0);
                     soundSeekBar.setMax((int)duration);
                     soundSeekBar.setProgress((int)position);
 
@@ -238,15 +232,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         adapter = new SoundsRecyclerAdapter(this, this);
         adapter.recyclerView = filesRecyclerView;
 
-        View.OnClickListener shuffleClick = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int shuffle = RTApplication.getDataBase().getShuffleMode();
-                shuffle = shuffle ^ 1;
-                RTApplication.getDataBase().setShuffleMode(shuffle);
+        View.OnClickListener shuffleClick = v -> {
+            int shuffle = RTApplication.getDataBase().getShuffleMode();
+            shuffle = shuffle ^ 1;
+            RTApplication.getDataBase().setShuffleMode(shuffle);
 
-                showShuffleIcon();
-            }
+            showShuffleIcon();
         };
 
         ImageView optionsLeft, optionsRight, optionsUp, optionsDown;
@@ -263,13 +254,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         shuffleDown = findViewById(R.id.shuffle_down);
         shuffleDown.setOnClickListener(shuffleClick);
 
-        View.OnClickListener optionsClick = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(RTApplication.getContext(), PreferencesActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-            }
+        View.OnClickListener optionsClick = v -> {
+            Intent intent = new Intent(RTApplication.getContext(), PreferencesActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         };
 
         optionsLeft = findViewById(R.id.options_left);
@@ -281,12 +269,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         optionsDown = findViewById(R.id.options_down);
         optionsDown.setOnClickListener(optionsClick);
 
-        View.OnClickListener imageExitClick = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RTApplication.getDataBase().putAllPreferences();
-                exitProgram();
-            }
+        View.OnClickListener imageExitClick = v -> {
+            RTApplication.getDataBase().putAllPreferences();
+            exitProgram();
         };
 
         backLeftImageView = findViewById(R.id.back_left);
@@ -298,17 +283,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         backDownImageView = findViewById(R.id.back_down);
         backDownImageView.setOnClickListener(imageExitClick);
 
-        View.OnClickListener imageBackFolderClick = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ArrayList<FileItem> FileList = RTApplication.getGlobalData().viewableFileList;
-                FileItem item = FileList.get(0);
+        View.OnClickListener imageBackFolderClick = v -> {
+            ArrayList<FileItem> FileList = RTApplication.getGlobalData().viewableFileList;
+            FileItem item = FileList.get(0);
 
-                if (item.isParentDirectory()) {
-                    if (serviceLink.isMediaServiceReady())
-                        RTApplication.getGlobalData().createViewableFileList(item.location);
-                    adapter.update(FileList);
-                }
+            if (item.isParentDirectory()) {
+                if (serviceLink.isMediaServiceReady())
+                    RTApplication.getGlobalData().createViewableFileList(item.location);
+                adapter.update(FileList);
             }
         };
 
@@ -321,13 +303,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         backFolderDown = findViewById(R.id.back_folder_down);
         backFolderDown.setOnClickListener(imageBackFolderClick);
 
-        View.OnClickListener imageTopFolderClick = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RTApplication.getGlobalData().createViewableFileList();
-                ArrayList<FileItem> fileList = RTApplication.getGlobalData().viewableFileList;
-                adapter.update(fileList);
-            }
+        View.OnClickListener imageTopFolderClick = v -> {
+            RTApplication.getGlobalData().createViewableFileList();
+            ArrayList<FileItem> fileList = RTApplication.getGlobalData().viewableFileList;
+            adapter.update(fileList);
         };
 
         topFolderLeft = findViewById(R.id.top_folder_left);
@@ -339,34 +318,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         topFolderDown = findViewById(R.id.top_folder_down);
         topFolderDown.setOnClickListener(imageTopFolderClick);
 
-        View.OnClickListener imagePlayerClick = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (v == playPauseImageView) {
-                    if (serviceLink.isMediaServiceReady()) {
-                        switch (serviceLink.getState()) {
-                            case PlaybackStateCompat.STATE_NONE: {
-                                break;
-                            }
-                            case PlaybackStateCompat.STATE_PAUSED: {
-                                serviceLink.resume();
-                                break;
-                            }
-                            case PlaybackStateCompat.STATE_PLAYING: {
-                                serviceLink.pause();
-                                break;
-                            }
+        View.OnClickListener imagePlayerClick = v -> {
+            if (v == playPauseImageView) {
+                if (serviceLink.isMediaServiceReady()) {
+                    switch (serviceLink.getState()) {
+                        case PlaybackStateCompat.STATE_NONE: {
+                            break;
+                        }
+                        case PlaybackStateCompat.STATE_PAUSED: {
+                            serviceLink.resume();
+                            break;
+                        }
+                        case PlaybackStateCompat.STATE_PLAYING: {
+                            serviceLink.pause();
+                            break;
                         }
                     }
                 }
-                else
-                if (v == nextSoundImageView) {
-                    serviceLink.nextSound();
-                }
-                else
-                if (v == prevSoundImageView) {
-                    serviceLink.prevSound();
-                }
+            }
+            else
+            if (v == nextSoundImageView) {
+                serviceLink.nextSound();
+            }
+            else
+            if (v == prevSoundImageView) {
+                serviceLink.prevSound();
             }
         };
 
@@ -376,33 +352,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         nextSoundImageView.setOnClickListener(imagePlayerClick);
         prevSoundImageView = findViewById(R.id.PrevSoundImageView);
         prevSoundImageView.setOnClickListener(imagePlayerClick);
-
-        View.OnClickListener imageStandartClick = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (v == standartMusicInageView) {
-                    Toast.makeText(getApplicationContext(), "standart music", Toast.LENGTH_SHORT).show();
-                    simulateKey(KeyEvent.KEYCODE_VIDEO_APP_1);
-                }
-                else
-                if (v == standartTelephoneInageView) {
-                    Toast.makeText(getApplicationContext(), "standart telephone", Toast.LENGTH_SHORT).show();
-                    simulateKey(KeyEvent.KEYCODE_THUMBS_UP);
-                }
-                else
-                if (v == standartHomeInageView) {
-                    Toast.makeText(getApplicationContext(), "standart home", Toast.LENGTH_SHORT).show();
-                    moveTaskToBack(true);
-                }
-            }
-        };
-
-        standartMusicInageView = findViewById(R.id.button_standart_music);
-        standartMusicInageView.setOnClickListener(imageStandartClick);
-        standartTelephoneInageView = findViewById(R.id.button_standart_telephone);
-        standartTelephoneInageView.setOnClickListener(imageStandartClick);
-        standartHomeInageView  = findViewById(R.id.button_standart_home);
-        standartHomeInageView.setOnClickListener(imageStandartClick);
 
         positionTextView = findViewById(R.id.PositionTextView);
         durationSoundTextView = findViewById(R.id.DurationTextView);
@@ -439,22 +388,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         seekBarThread.start();
     }
 
-    private static void simulateKey(final int KeyCode) {
-
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    Instrumentation inst = new Instrumentation();
-                    inst.sendKeyDownUpSync(KeyCode);
-                } catch (Exception e) {
-                    Log.e("Exception when sendKeyDownUpSync", e.toString());
-                }
-            }
-
-        }.start();
-    }
-
     public void exitProgram() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             this.finishAndRemoveTask();
@@ -485,9 +418,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_play);
                 positionTextView.setText(timeFormat(0));
                 durationSoundTextView.setText(timeFormat(0));
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    soundSeekBar.setMin(0);
-                }
+                soundSeekBar.setMin(0);
                 soundSeekBar.setMax(0);
                 soundSeekBar.setProgress(0);
                 break;
@@ -505,13 +436,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void applyPreferences() {
         RTApplication.getDataBase().getAllPreferences();
-
-        if (standartMusicInageView.getVisibility() != View.GONE)
-            standartMusicInageView.setVisibility(View.GONE);
-        if (standartTelephoneInageView.getVisibility() != View.GONE)
-            standartTelephoneInageView.setVisibility(View.GONE);
-        if (standartHomeInageView.getVisibility() != View.GONE)
-            standartHomeInageView.setVisibility(View.GONE);
 
         Utils.setImageBackground(this, this.findViewById(R.id.main));
 
@@ -635,36 +559,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
     }
 
-    Runnable getSoundPlayerDataRunnable = new Runnable() {
-        @Override
-        public void run() {
-            long position;
-            long duration;
+    Runnable getSoundPlayerDataRunnable = () -> {
+        long position;
+        long duration;
 
-            if (serviceLink.isMediaServiceReady() && soundSeekBar != null) {
-                position = serviceLink.getPosition();
-                duration = serviceLink.getDuration();
-                if (position <= duration)
-                    soundSeekBar.setProgress((int) position);
-            }
+        if (serviceLink.isMediaServiceReady() && soundSeekBar != null) {
+            position = serviceLink.getPosition();
+            duration = serviceLink.getDuration();
+            if (position <= duration)
+                soundSeekBar.setProgress((int) position);
         }
     };
 
-    Runnable seekBarRunnable = new Runnable() {
-        public void run() {
+    Runnable seekBarRunnable = () -> {
 
-            while (true) {
-                if (Thread.currentThread().isInterrupted())
-                    break;
+        while (true) {
+            if (Thread.currentThread().isInterrupted())
+                break;
 
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    break;
-                }
-
-                runOnUiThread(getSoundPlayerDataRunnable);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                break;
             }
+
+            runOnUiThread(getSoundPlayerDataRunnable);
         }
     };
 

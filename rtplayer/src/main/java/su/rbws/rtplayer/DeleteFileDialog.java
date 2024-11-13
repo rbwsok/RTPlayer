@@ -54,18 +54,17 @@ public class DeleteFileDialog extends DialogFragment {
         return v;
     }
 
-    View.OnClickListener buttonClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            // Закрываем диалоговое окно
-            if (v == buttonYes) {
-                onClick.onDialogButtonClickListener(1, fullfilename);
-                dismiss();
-            }
+    IDialogButtonInterface onClickButtonInterface;
 
-            if (v == buttonNo) {
-                dismiss();
-            }
+    View.OnClickListener buttonClick = v -> {
+        // Закрываем диалоговое окно
+        if (v == buttonYes) {
+            onClickButtonInterface.onDialogButtonClickListener(1, fullfilename);
+            dismiss();
+        }
+
+        if (v == buttonNo) {
+            dismiss();
         }
     };
 
@@ -81,13 +80,11 @@ public class DeleteFileDialog extends DialogFragment {
         super.onCancel(dialog);
     }
 
-    IDialogButtonInterface onClick;
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
-            onClick = (IDialogButtonInterface) context;
+            onClickButtonInterface = (IDialogButtonInterface) context;
         } catch (ClassCastException e) {
             throw new ClassCastException("Activity must implement onDialogClickListener");
         }
@@ -96,7 +93,7 @@ public class DeleteFileDialog extends DialogFragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        onClick = null;
+        onClickButtonInterface = null;
     }
 
 }

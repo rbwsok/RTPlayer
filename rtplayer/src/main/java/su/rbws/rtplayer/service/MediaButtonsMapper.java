@@ -188,7 +188,6 @@ public class MediaButtonsMapper {
             }
         }
         catch (Exception e) { }
-        //catch (XmlPullParserException e) { }
     }
 
     public static String loadedSerializationXML = "";

@@ -1,11 +1,9 @@
 package su.rbws.rtplayer;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -32,7 +30,7 @@ public class Utils {
         return result;
     }
 
-    public static void setImageBackground(AppCompatActivity activity, ConstraintLayout mainLayout) {
+    public static void setImageBackground(@NonNull AppCompatActivity activity, ConstraintLayout mainLayout) {
         activity.getWindow().setNavigationBarColor(activity.getColor(R.color.transparent));
         activity.getWindow().setStatusBarColor(activity.getColor(R.color.transparent));
 

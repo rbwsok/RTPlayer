@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import android.media.MediaMetadataRetriever;
 
-import android.util.Log;
+import androidx.annotation.NonNull;
 
 public class MetadataExtractor {
     public static class MetadataItem {
@@ -48,7 +48,7 @@ public class MetadataExtractor {
         return result;
     }
 
-    public boolean getMetadata(FileItem item, int position) {
+    public boolean getMetadata(@NonNull FileItem item, int position) {
         if (item.metadataAcquired)
             return true;
 

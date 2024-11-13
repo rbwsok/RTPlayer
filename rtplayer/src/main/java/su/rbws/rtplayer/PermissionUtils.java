@@ -13,8 +13,6 @@ import androidx.core.app.ActivityCompat;
 
 public class PermissionUtils {
 
-    //public final static int request_READ_EXTERNAL_STORAGE = 1;
-    //public final static int request_READ_MEDIA_AUDIO = 2;
     public final static int request_MANAGE_EXTERNAL_STORAGE = 3;
     public final static int request_WAKE_LOCK = 4;
     public final static int request_INTERNET = 5;

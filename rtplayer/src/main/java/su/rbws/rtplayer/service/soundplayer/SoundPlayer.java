@@ -1,7 +1,8 @@
 package su.rbws.rtplayer.service.soundplayer;
 
 import android.content.Context;
-import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import su.rbws.rtplayer.RTApplication;
 
@@ -10,17 +11,12 @@ public class SoundPlayer {
     // подсистема воспроизведения звуков (MediaPlayer и т.д.)
     SoundSystemAbstract soundSystem;
 
-    // список файлов
-    public SoundList fileList;
-
     // команды плееру
     public enum SoundPlayerCommand {spcNone, spcPlay, spcPause, spcResume, spcStop, spcSetPosition,
         spcGetPosition, spcGetDuration, spcSetVolume, spcGetVolume, spcPlayNextSound, spcPlayPrevSound, spcGetIsPlayed}
 
     public SoundPlayer(Context context) {
-        //SoundSystem = new SoundSystemMediaPlayer(context);
         soundSystem = new SoundSystemExoPlayer(context);
-        fileList = new SoundList();
     }
 
     public long sendCommand(SoundPlayerCommand command) {
@@ -35,7 +31,7 @@ public class SoundPlayer {
         return sendCommand(command, "", param2);
     }
 
-    public long sendCommand(SoundPlayerCommand command, String param1, long param2) {
+    public long sendCommand(@NonNull SoundPlayerCommand command, String param1, long param2) {
         long result = 0;
 
         switch (command) {

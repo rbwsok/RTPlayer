@@ -8,36 +8,6 @@
     android:theme="@style/Theme.RTPlayer"
     tools:context=".MainActivity">
 
-    <ImageView
-        android:id="@+id/button_standart_music"
-        android:layout_width="90dp"
-        android:layout_height="90dp"
-        android:layout_marginStart="45dp"
-        android:layout_marginTop="375dp"
-        android:src="@color/button_transparent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/button_standart_telephone"
-        android:layout_width="90dp"
-        android:layout_height="90dp"
-        android:layout_marginStart="45dp"
-        android:layout_marginTop="485dp"
-        android:src="@color/button_transparent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/button_standart_home"
-        android:layout_width="90dp"
-        android:layout_height="90dp"
-        android:layout_marginStart="45dp"
-        android:layout_marginTop="600dp"
-        android:src="@color/button_transparent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
-import android.os.Build;
 import android.os.IBinder;
 import android.os.Binder;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -67,18 +66,16 @@ public class RTMediaService extends Service {
 
         audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build();
-            audioFocusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                    .setOnAudioFocusChangeListener(audioFocusChangeListener)
-                    .setAcceptsDelayedFocusGain(true)
-                    .setWillPauseWhenDucked(true)
-                    .setAudioAttributes(audioAttributes)
-                    .build();
-        }
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build();
+        audioFocusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                .setOnAudioFocusChangeListener(audioFocusChangeListener)
+                .setAcceptsDelayedFocusGain(true)
+                .setWillPauseWhenDucked(true)
+                .setAudioAttributes(audioAttributes)
+                .build();
 
         mediaSession = new MediaSessionCompat(this, "PlayerService");
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
@@ -135,8 +132,6 @@ public class RTMediaService extends Service {
                             // Например, был входящий звонок и фокус у нас отняли.
                             // Звонок закончился, фокус выдали опять
                             // и мы продолжили воспроизведение.
-/*                            if (!SoundPlayer_IsPlayed())
-                                mediaSessionCallback.onPlay();*/
                             soundPlayer_SetVolume(100);
                             break;
                         case AudioManager.AUDIOFOCUS_LOSS:
@@ -211,7 +206,7 @@ public class RTMediaService extends Service {
         @Override
         public boolean onMediaButtonEvent(@NonNull Intent mediaButtonIntent) {
             // вызывается до обработки конкретного события
-            boolean result = false; // true - обработано, false - не обработано
+            boolean result; // true - обработано, false - не обработано
             int keyCode;
             int action;
             boolean mediaButtonProcessing = false;
@@ -229,12 +224,8 @@ public class RTMediaService extends Service {
                                 case mbaNone:
                                     break;
                                 case mbaNext:
-//                                    mediaButtonSkipToNext();
-//                                    mediaButtonProcessing = true;
                                     break;
                                 case mbaPrev:
-//                                    mediaButtonSkipToPrevious();
-//                                    mediaButtonProcessing = true;
                                     break;
                                 case mbaPlayPause:
                                     break;
@@ -283,15 +274,7 @@ public class RTMediaService extends Service {
             int audioFocusResult;
 
             if (!audioFocusRequested) {
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    audioFocusResult = audioManager.requestAudioFocus(audioFocusRequest);
-                } else {
-                    audioFocusResult = audioManager.requestAudioFocus(
-                            audioFocusChangeListener,
-                            AudioManager.STREAM_MUSIC,
-                            AudioManager.AUDIOFOCUS_GAIN);
-                }
+                audioFocusResult = audioManager.requestAudioFocus(audioFocusRequest);
 
                 switch (audioFocusResult) {
                     case AudioManager.AUDIOFOCUS_REQUEST_FAILED:
@@ -339,12 +322,7 @@ public class RTMediaService extends Service {
             // Все, больше мы не "главный" плеер, уходим со сцены
             mediaSession.setActive(false);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                audioManager.abandonAudioFocusRequest(audioFocusRequest);
-            }
-            else {
-                audioManager.abandonAudioFocus(audioFocusChangeListener);
-            }
+            audioManager.abandonAudioFocusRequest(audioFocusRequest);
 
             audioFocusRequested = false;
 

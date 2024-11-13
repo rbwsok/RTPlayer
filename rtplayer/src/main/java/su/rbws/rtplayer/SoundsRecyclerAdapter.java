@@ -201,17 +201,14 @@ public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAd
             songNameTextView = view.findViewById(R.id.name_text_view);
             infoTextView = view.findViewById(R.id.info_text_view);
 
-            View.OnClickListener crossClick = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    RecyclerView.ViewHolder viewHolder = activity.adapter.recyclerView.findContainingViewHolder(v);
-                    if (viewHolder != null) {
-                        int itemPosition = viewHolder.getLayoutPosition();
-                        ArrayList<FileItem> fileList = RTApplication.getGlobalData().viewableFileList;
-                        FileItem item = fileList.get(itemPosition);
+            View.OnClickListener crossClick = v -> {
+                RecyclerView.ViewHolder viewHolder = activity.adapter.recyclerView.findContainingViewHolder(v);
+                if (viewHolder != null) {
+                    int itemPosition = viewHolder.getLayoutPosition();
+                    ArrayList<FileItem> fileList = RTApplication.getGlobalData().viewableFileList;
+                    FileItem item = fileList.get(itemPosition);
 
-                        activity.showDeleteFileDialog(item.getFullName());
-                    }
+                    activity.showDeleteFileDialog(item.getFullName());
                 }
             };
 
@@ -224,13 +221,9 @@ public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAd
 
     @Override
     public void onItemChanged(int position) {
-        recyclerView.post(new Runnable()
-        {
-            @Override
-            public void run() {
-                notifyDataSetChanged();
-                //notifyItemChanged(position);
-            }
+        recyclerView.post(() -> {
+            notifyDataSetChanged();
+            //notifyItemChanged(position);
         });
 
     }

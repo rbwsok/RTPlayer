@@ -56,20 +56,19 @@ public class SelectMediaButtonActionDialog extends DialogFragment {
         return v;
     }
 
-    View.OnClickListener recyclerClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            int itemPosition = adapter.recyclerView.getChildLayoutPosition(v);
+    IDialogButtonInterface onClickButtonInterface;
 
-            ArrayList<MediaButtonsMapper.MediaButtonAction> mediaButtonAction = RTApplication.getGlobalData().mediaButtonsMapper.mediaButtonActions;
-            MediaButtonsMapper.MediaButtonAction item = mediaButtonAction.get(itemPosition);
+    View.OnClickListener recyclerClick = v -> {
+        int itemPosition = adapter.recyclerView.getChildLayoutPosition(v);
 
-            mediaButton.action = item.action;
+        ArrayList<MediaButtonsMapper.MediaButtonAction> mediaButtonAction = RTApplication.getGlobalData().mediaButtonsMapper.mediaButtonActions;
+        MediaButtonsMapper.MediaButtonAction item = mediaButtonAction.get(itemPosition);
 
-            onClick.onDialogButtonClickListener(3, null);
+        mediaButton.action = item.action;
 
-            dismiss();
-        }
+        onClickButtonInterface.onDialogButtonClickListener(3, null);
+
+        dismiss();
     };
 
     // onDismiss вызывается при закрытии фрагмента
@@ -84,13 +83,11 @@ public class SelectMediaButtonActionDialog extends DialogFragment {
         super.onCancel(dialog);
     }
 
-    IDialogButtonInterface onClick;
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
-            onClick = (IDialogButtonInterface) context;
+            onClickButtonInterface = (IDialogButtonInterface) context;
         } catch (ClassCastException e) {
             throw new ClassCastException("Activity must implement onDialogClickListener");
         }
@@ -99,10 +96,10 @@ public class SelectMediaButtonActionDialog extends DialogFragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        onClick = null;
+        onClickButtonInterface = null;
     }
 
-    public class MediaButtonActionRecyclerAdapter extends RecyclerView.Adapter<SelectMediaButtonActionDialog.MediaButtonActionRecyclerAdapter.ViewHolder> {
+    public static class MediaButtonActionRecyclerAdapter extends RecyclerView.Adapter<SelectMediaButtonActionDialog.MediaButtonActionRecyclerAdapter.ViewHolder> {
         private List<MediaButtonsMapper.MediaButtonAction> items;
         public RecyclerView recyclerView;
 
@@ -125,7 +122,7 @@ public class SelectMediaButtonActionDialog extends DialogFragment {
         {
             View view = LayoutInflater.from(parent.getContext()).inflate(viewType, parent, false);
             view.setOnClickListener(onClickListener);
-            return new MediaButtonActionRecyclerAdapter.ViewHolder(view);
+            return new ViewHolder(view);
         }
 
         @Override
@@ -146,7 +143,7 @@ public class SelectMediaButtonActionDialog extends DialogFragment {
             notifyDataSetChanged();
         }
 
-        public class ViewHolder extends RecyclerView.ViewHolder
+        public static class ViewHolder extends RecyclerView.ViewHolder
         {
             public TextView captionTextView;
 

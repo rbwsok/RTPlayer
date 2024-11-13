@@ -77,37 +77,31 @@ public class MediaButtonsDialog extends DialogFragment {
         return v;
     }
 
-    View.OnClickListener recyclerClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            int itemPosition = adapter.recyclerView.getChildLayoutPosition(v);
+    View.OnClickListener recyclerClick = v -> {
+        int itemPosition = adapter.recyclerView.getChildLayoutPosition(v);
 
-            ArrayList<MediaButtonsMapper.MediaButton> mediaButtons = RTApplication.getGlobalData().mediaButtonsMapper.mediaButtons;
-            MediaButtonsMapper.MediaButton mediaButton = mediaButtons.get(itemPosition);
+        ArrayList<MediaButtonsMapper.MediaButton> mediaButtons = RTApplication.getGlobalData().mediaButtonsMapper.mediaButtons;
+        MediaButtonsMapper.MediaButton mediaButton = mediaButtons.get(itemPosition);
 
-            activity.showSelectMediaButtonActionsDialog(mediaButton);
-        }
+        activity.showSelectMediaButtonActionsDialog(mediaButton);
     };
 
     int currentMode = 0; // 0 - ничего, 1 - ожидание нажатия клавиши
     int currentKeyCode;
 
-    View.OnClickListener buttonClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (v == addButton) {
-                mediButtonInputTextView.setText(getString(R.string.media_buttons_press_button));
-                currentMode = 1;
-            }
+    View.OnClickListener buttonClick = v -> {
+        if (v == addButton) {
+            mediButtonInputTextView.setText(getString(R.string.media_buttons_press_button));
+            currentMode = 1;
+        }
 
-            if (v == defaultButton) {
-                RTApplication.getGlobalData().mediaButtonsMapper.setDefault();
-                updateRecyclerView();
-            }
+        if (v == defaultButton) {
+            RTApplication.getGlobalData().mediaButtonsMapper.setDefault();
+            updateRecyclerView();
+        }
 
-            if (v == exitButton) {
-                dismiss();
-            }
+        if (v == exitButton) {
+            dismiss();
         }
     };
 
@@ -154,25 +148,6 @@ public class MediaButtonsDialog extends DialogFragment {
     public void onCancel(@NonNull DialogInterface dialog) {
         super.onCancel(dialog);
     }
-
-/*    IDialogButtonInterface onClick;
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        try {
-            onClick = (IDialogButtonInterface) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException("Activity must implement onDialogClickListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        onClick = null;
-    }
-*/
 
     public class MediaButtonRecyclerAdapter extends RecyclerView.Adapter<MediaButtonsDialog.MediaButtonRecyclerAdapter.ViewHolder> {
         private List<MediaButtonsMapper.MediaButton> items;
@@ -230,19 +205,15 @@ public class MediaButtonsDialog extends DialogFragment {
                 keyCode = view.findViewById(R.id.key_code);
                 action = view.findViewById(R.id.action);
 
-                View.OnClickListener crossClick = new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        RecyclerView.ViewHolder viewHolder = adapter.recyclerView.findContainingViewHolder(v);
-                        if (viewHolder != null) {
-                            int itemPosition = viewHolder.getLayoutPosition();
+                View.OnClickListener crossClick = v -> {
+                    RecyclerView.ViewHolder viewHolder = adapter.recyclerView.findContainingViewHolder(v);
+                    if (viewHolder != null) {
+                        int itemPosition = viewHolder.getLayoutPosition();
 
-                            ArrayList<MediaButtonsMapper.MediaButton> mediaButtons = RTApplication.getGlobalData().mediaButtonsMapper.mediaButtons;
-                            mediaButtons.remove(itemPosition);
-                        }
-                        updateRecyclerView();
+                        ArrayList<MediaButtonsMapper.MediaButton> mediaButtons = RTApplication.getGlobalData().mediaButtonsMapper.mediaButtons;
+                        mediaButtons.remove(itemPosition);
                     }
-
+                    updateRecyclerView();
                 };
 
                 crossImage = view.findViewById(R.id.cross);

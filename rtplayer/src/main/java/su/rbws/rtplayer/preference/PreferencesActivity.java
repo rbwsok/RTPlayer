@@ -6,14 +6,11 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -51,12 +48,8 @@ public class PreferencesActivity extends AppCompatActivity implements SharedPref
 
         RTApplication.getDataBase().sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-        View.OnClickListener imageBackClick = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PreferencesActivity.super.onBackPressed();
-            }
-        };
+        View.OnClickListener imageBackClick = v -> PreferencesActivity.super.getOnBackPressedDispatcher().onBackPressed();
+
         backImageView = findViewById(R.id.BackUpImageView);
         backImageView.setOnClickListener(imageBackClick);
 

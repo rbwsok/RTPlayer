@@ -124,39 +124,36 @@ public class FTPDialog extends DialogFragment {
         }
     }
 
-    View.OnClickListener buttonclick = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            // Закрываем диалоговое окно
-            if (v == buttonStart) {
-                ftperror = FTPError.ftpNone;
-                if (!ftpstarted) {
-                    localaddresses.clear();
-                    getLocalIpAddresses(localaddresses);
-                    if (localaddresses.isEmpty()) {
-                        ftperror = FTPError.ftpLocalAddress;
+    View.OnClickListener buttonclick = v -> {
+        // Закрываем диалоговое окно
+        if (v == buttonStart) {
+            ftperror = FTPError.ftpNone;
+            if (!ftpstarted) {
+                localaddresses.clear();
+                getLocalIpAddresses(localaddresses);
+                if (localaddresses.isEmpty()) {
+                    ftperror = FTPError.ftpLocalAddress;
+                } else {
+                    int port = Utils.parseInt(PortEditTextNumberSigned.getText().toString());
+                    if (port < 4000 || port > 65535) {
+                        ftperror = FTPError.ftpLocalPort;
                     } else {
-                        int port = Utils.parseInt(PortEditTextNumberSigned.getText().toString());
-                        if (port < 4000 || port > 65535) {
-                            ftperror = FTPError.ftpLocalPort;
-                        } else {
-                            RTApplication.getDataBase().setFTPPort(port);
-                            ftpstarted = true;
-                            startFTP(port);
-                        }
-
+                        RTApplication.getDataBase().setFTPPort(port);
+                        ftpstarted = true;
+                        startFTP(port);
                     }
-                }
-                else {
-                    ftpstarted = false;
-                    stopFTP();
-                }
-                ViewStateTexts();
-            }
 
-            if (v == buttonExit) {
-                dismiss();
+                }
             }
+            else {
+                ftpstarted = false;
+                stopFTP();
+            }
+            ViewStateTexts();
+        }
+
+        if (v == buttonExit) {
+            dismiss();
         }
     };
 
@@ -176,24 +173,6 @@ public class FTPDialog extends DialogFragment {
         super.onCancel(dialog);
     }
 
-/*    IDialogButtonInterface onClick;
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        try {
-            onClick = (IDialogButtonInterface) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException("Activity must implement onDialogClickListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        onClick = null;
-    }*/
-
     FTPServer server;
 
     public void startFTP(int port) {
@@ -205,8 +184,6 @@ public class FTPDialog extends DialogFragment {
         server = new FTPServer(auth);
 
         try {
-            //InetAddress address = InetAddress.getByName(ipAddress);
-            //server.listen(address, port);
             server.listen(port);
         }
         catch (IOException e) {

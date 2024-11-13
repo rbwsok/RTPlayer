@@ -11,7 +11,7 @@ import java.util.Collections;
 
 public class FileUtils {
     // добавление разделителя в конец пути
-    public static String includePathDelimiter(String path) {
+    public static String includePathDelimiter(@NonNull String path) {
         String result = "/";
         if (!path.isEmpty()) {
             result = path;
@@ -23,6 +23,7 @@ public class FileUtils {
     }
 
     // удаление разделителя в конец пути
+    @NonNull
     public static String excludePathDelimiter(String path) {
         String result = path;
         if (!result.isEmpty()) {
