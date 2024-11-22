@@ -33,7 +33,7 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
 
     }
 
-    private String getListValueFromEntries(@NonNull DataBaseAbstract.PreferenceItem item) {
+    private String getListValueFromEntries(@NonNull PreferencesAbstract.PreferenceItem item) {
         String keyvalue = item.value;
 
         if (keyvalue.isEmpty())
@@ -64,8 +64,8 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
         ListPreference listPreference;
         EditTextPreference editPreference;
 
-        for (Map.Entry<String, DataBaseAbstract.PreferenceItem> entry : RTApplication.getDataBase().data.entrySet()) {
-            DataBaseAbstract.PreferenceItem item = entry.getValue();
+        for (Map.Entry<String, PreferencesAbstract.PreferenceItem> entry : RTApplication.getPreferencesData().data.entrySet()) {
+            PreferencesAbstract.PreferenceItem item = entry.getValue();
             if (item.value == null)
                 item.value = item.defaultValue;
 
@@ -116,8 +116,8 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
         EditTextPreference editPreference;
         String valueString;
 
-        for (Map.Entry<String, DataBaseAbstract.PreferenceItem> entry : RTApplication.getDataBase().data.entrySet()) {
-            DataBaseAbstract.PreferenceItem item = entry.getValue();
+        for (Map.Entry<String, PreferencesAbstract.PreferenceItem> entry : RTApplication.getPreferencesData().data.entrySet()) {
+            PreferencesAbstract.PreferenceItem item = entry.getValue();
             if (item.value == null)
                 item.value = item.defaultValue;
 
@@ -179,17 +179,17 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
 
     @Override
     public void onDisplayPreferenceDialog(@NonNull Preference preference) {
-        if (preference.getKey().equals(DataBasePreferences.PREFERENCE_NAME_DEFAULT)) {
-            RTApplication.getDataBase().putAllDefaultPreferences();
+        if (preference.getKey().equals(PreferencesData.PREFERENCE_NAME_DEFAULT)) {
+            RTApplication.getPreferencesData().putAllDefaultPreferences();
 
             Toast.makeText(ParentActivity, getResources().getString(R.string.set_default_params), Toast.LENGTH_SHORT).show();
         }
         else
-        if (preference.getKey().equals(DataBasePreferences.PREFERENCE_NAME_REMAP_KEYS)) {
+        if (preference.getKey().equals(PreferencesData.PREFERENCE_NAME_REMAP_KEYS)) {
             ((PreferencesActivity)ParentActivity).showMediaButtonsDialog();
         }
         else
-        if (preference.getKey().equals(DataBasePreferences.PREFERENCE_NAME_FTP_SERVER)) {
+        if (preference.getKey().equals(PreferencesData.PREFERENCE_NAME_FTP_SERVER)) {
             ((PreferencesActivity)ParentActivity).showFTPDialog();
         }
         else

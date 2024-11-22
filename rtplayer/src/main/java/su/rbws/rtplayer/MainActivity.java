@@ -31,8 +31,7 @@ import android.widget.SeekBar;
 import android.widget.Space;
 import android.widget.Toast;
 
-import java.io.File;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import su.rbws.rtplayer.preference.PreferencesActivity;
@@ -67,9 +66,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             filesRecyclerView.setAdapter(adapter);
 
                             if (!applyNoShowPreferences()) {
-                                RTApplication.getGlobalData().createViewableFileList();
-                                adapter.update(RTApplication.getGlobalData().viewableFileList);
+                                RTApplication.getSoundSourceManager().createViewableRootList();
+                                adapter.update(RTApplication.getSoundSourceManager().getViewableList());
                             }
+
+                            filesRecyclerView.addOnScrollListener(scrollListener);
 
                             serviceLink.getMediaButtonsMapper();
                         }
@@ -118,36 +119,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // уведомление от службы о старте трека
             if (action.equals(SoundSystemAbstract.ACTION_PLAYFILE)) {
                 if (serviceLink.isMediaServiceReady()) {
-                    // seek bar
-                    long position, duration;
-                    position = serviceLink.getPosition();
-                    duration = serviceLink.getDuration();
-                    positionTextView.setText(timeFormat(position));
-                    durationSoundTextView.setText(timeFormat(duration));
-                    soundSeekBar.setMin(0);
-                    soundSeekBar.setMax((int)duration);
-                    soundSeekBar.setProgress((int)position);
+                    if (RTApplication.getSoundSourceManager().isFile(serviceLink.getCurrentPlayedSound())) {
+                        // seek bar
+                        long position, duration;
+                        position = serviceLink.getPosition();
+                        duration = serviceLink.getDuration();
+                        positionTextView.setText(timeFormat(position));
+                        durationSoundTextView.setText(timeFormat(duration));
+                        soundSeekBar.setMin(0);
+                        soundSeekBar.setMax((int) duration);
+                        soundSeekBar.setProgress((int) position);
 
-                    String lastFile = RTApplication.getDataBase().getLastPlayedFile();
-                    if (!lastFile.isEmpty()) {
-                        String newFile = serviceLink.getCurrentPlayedSound();
-                        lastFile = FileUtils.extractFilePath(lastFile);
-                        newFile = FileUtils.extractFilePath(newFile);
+                        String lastFile = RTApplication.getPreferencesData().getLastPlayedFile();
+                        if (!lastFile.isEmpty()) {
+                            String newFile = serviceLink.getCurrentPlayedSound();
+                            lastFile = FileUtils.extractFilePath(lastFile);
+                            newFile = FileUtils.extractFilePath(newFile);
 
-                        if (!lastFile.equals(newFile)) {
-                            RTApplication.getGlobalData().createViewableFileList(newFile);
-                            adapter.update(RTApplication.getGlobalData().viewableFileList);
+                            if (!lastFile.equals(newFile)) {
+                                RTApplication.getSoundSourceManager().createViewableList(newFile);
+                                adapter.update(RTApplication.getSoundSourceManager().getViewableList());
+                            }
+                        }
+
+                        RTApplication.getPreferencesData().setLastPlayedFile(serviceLink.getCurrentPlayedSound());
+
+                        // рекуклер
+                        int selPosition = adapter.getCurrentPosition();
+                        if (selPosition >= 0) {
+                            LinearLayoutManager lm = (LinearLayoutManager) filesRecyclerView.getLayoutManager();
+                            if (lm != null)
+                                lm.scrollToPosition(selPosition);
                         }
                     }
+                    else {
+                        clearSeekBar();
 
-                    RTApplication.getDataBase().setLastPlayedFile(serviceLink.getCurrentPlayedSound());
-
-                    // рекуклер
-                    int selPosition = adapter.getCurrentPosition();
-                    if (selPosition >= 0) {
-                        LinearLayoutManager lm = (LinearLayoutManager)filesRecyclerView.getLayoutManager();
-                        if (lm != null)
-                            lm.scrollToPosition(selPosition);
+                        RTApplication.getPreferencesData().setLastPlayedFile(serviceLink.getCurrentPlayedSound());
+                        // рекуклер
+                        int selPosition = adapter.getCurrentPosition();
+                        if (selPosition >= 0) {
+                            LinearLayoutManager lm = (LinearLayoutManager) filesRecyclerView.getLayoutManager();
+                            if (lm != null)
+                                lm.scrollToPosition(selPosition);
+                        }
                     }
                 }
             }
@@ -164,10 +179,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         applyPreferences();
 
-        if (!RTApplication.getGlobalData().viewableFileList.isEmpty()) {
+        if (!RTApplication.getSoundSourceManager().getViewableList().isEmpty()) {
             if (firstResume)
-                RTApplication.getGlobalData().createViewableFileList(RTApplication.getDataBase().getBaseDirectory());
-            adapter.update(RTApplication.getGlobalData().viewableFileList);
+                RTApplication.getSoundSourceManager().createViewableList(RTApplication.getPreferencesData().getBaseDirectory());
+            adapter.update(RTApplication.getSoundSourceManager().getViewableList());
         }
         else {
             if (!firstResume)
@@ -188,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onPause() {
-        RTApplication.getDataBase().putAllPreferences();
+        RTApplication.getPreferencesData().putAllPreferences();
         super.onPause();
 
         Log.i("rtplayer_tag", "onPause");
@@ -233,9 +248,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         adapter.recyclerView = filesRecyclerView;
 
         View.OnClickListener shuffleClick = v -> {
-            int shuffle = RTApplication.getDataBase().getShuffleMode();
+            int shuffle = RTApplication.getPreferencesData().getShuffleMode();
             shuffle = shuffle ^ 1;
-            RTApplication.getDataBase().setShuffleMode(shuffle);
+            RTApplication.getPreferencesData().setShuffleMode(shuffle);
 
             showShuffleIcon();
         };
@@ -270,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         optionsDown.setOnClickListener(optionsClick);
 
         View.OnClickListener imageExitClick = v -> {
-            RTApplication.getDataBase().putAllPreferences();
+            RTApplication.getPreferencesData().putAllPreferences();
             exitProgram();
         };
 
@@ -284,13 +299,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         backDownImageView.setOnClickListener(imageExitClick);
 
         View.OnClickListener imageBackFolderClick = v -> {
-            ArrayList<FileItem> FileList = RTApplication.getGlobalData().viewableFileList;
-            FileItem item = FileList.get(0);
+            List<SoundItem> FileList = RTApplication.getSoundSourceManager().getViewableList();
+            if (!FileList.isEmpty()) {
+                SoundItem item = FileList.get(0);
+                boolean needUpdatePositionList = false;
 
-            if (item.isParentDirectory()) {
-                if (serviceLink.isMediaServiceReady())
-                    RTApplication.getGlobalData().createViewableFileList(item.location);
-                adapter.update(FileList);
+                switch (item.state) {
+                    case fiParentDirectory:
+                        if (serviceLink.isMediaServiceReady())
+                            RTApplication.getSoundSourceManager().createViewableList(item);
+                        adapter.update(FileList);
+                        needUpdatePositionList = true;
+                        break;
+                    case fiRadioParentDirectory:
+                        RTApplication.getSoundSourceManager().createViewableRootList();
+                        adapter.update(FileList);
+                        needUpdatePositionList = true;
+                        break;
+                    case fiRadioStationParentDirectory:
+                        if (!RTApplication.getSoundSourceManager().createViewableList(item)) {
+                            Toast.makeText(getApplicationContext(), "Ошибка подключенияч к интернету", Toast.LENGTH_SHORT).show();
+                        }
+                        adapter.update(FileList);
+                        needUpdatePositionList = true;
+                        break;
+                }
+
+                if (needUpdatePositionList) {
+                    LinearLayoutManager lm;
+                    lm = (LinearLayoutManager)filesRecyclerView.getLayoutManager();
+                    if (lm != null)
+                        lm.scrollToPosition(0);
+                }
             }
         };
 
@@ -304,9 +344,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         backFolderDown.setOnClickListener(imageBackFolderClick);
 
         View.OnClickListener imageTopFolderClick = v -> {
-            RTApplication.getGlobalData().createViewableFileList();
-            ArrayList<FileItem> fileList = RTApplication.getGlobalData().viewableFileList;
-            adapter.update(fileList);
+            RTApplication.getSoundSourceManager().createViewableRootList();
+            adapter.update(RTApplication.getSoundSourceManager().getViewableList());
         };
 
         topFolderLeft = findViewById(R.id.top_folder_left);
@@ -401,7 +440,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     void showShuffleIcon() {
         Drawable drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_shuffle_off);
-        int shuffle = RTApplication.getDataBase().getShuffleMode();
+        int shuffle = RTApplication.getPreferencesData().getShuffleMode();
         if (shuffle != 0)
             drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_shuffle_on);
         shuffleLeft.setImageDrawable(drawable);
@@ -410,17 +449,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         shuffleDown.setImageDrawable(drawable);
     }
 
+    void clearSeekBar() {
+        positionTextView.setText(timeFormat(0));
+        durationSoundTextView.setText(timeFormat(0));
+        soundSeekBar.setMin(0);
+        soundSeekBar.setMax(0);
+        soundSeekBar.setProgress(0);
+    }
+
     void updateUI(@NonNull PlaybackStateCompat state) {
         Drawable drawable = null;
 
         switch (state.getState()) {
             case PlaybackStateCompat.STATE_STOPPED:
                 drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_play);
-                positionTextView.setText(timeFormat(0));
-                durationSoundTextView.setText(timeFormat(0));
-                soundSeekBar.setMin(0);
-                soundSeekBar.setMax(0);
-                soundSeekBar.setProgress(0);
+                clearSeekBar();
                 break;
             case PlaybackStateCompat.STATE_PAUSED:
                 drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_play);
@@ -435,7 +478,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void applyPreferences() {
-        RTApplication.getDataBase().getAllPreferences();
+        RTApplication.getPreferencesData().getAllPreferences();
 
         Utils.setImageBackground(this, this.findViewById(R.id.main));
 
@@ -448,7 +491,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         toolbarDown = findViewById(R.id.toolbar_down);
 
         try {
-            switch (RTApplication.getDataBase().getToolbarPosition()) {
+            switch (RTApplication.getPreferencesData().getToolbarPosition()) {
                 case 1:
                     if (toolbarLeft.getVisibility() != View.VISIBLE)
                         toolbarLeft.setVisibility(View.VISIBLE);
@@ -507,21 +550,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bottomSpace = findViewById(R.id.bottom_space);
 
         ViewGroup.LayoutParams params = topSpace.getLayoutParams();
-        params.height = RTApplication.getDataBase().getTopSpace();
+        params.height = RTApplication.getPreferencesData().getTopSpace();
         topSpace.setLayoutParams(params);
 
         params = leftSpace.getLayoutParams();
         params.width = RTApplication.ScreenAuto.INSETS_LEFT -
                 RTApplication.ScreenAuto.PADDING_LEFT +
-                RTApplication.getDataBase().getLeftSpace();
+                RTApplication.getPreferencesData().getLeftSpace();
         leftSpace.setLayoutParams(params);
 
         params = rightSpace.getLayoutParams();
-        params.width = RTApplication.getDataBase().getRightSpace();
+        params.width = RTApplication.getPreferencesData().getRightSpace();
         rightSpace.setLayoutParams(params);
 
         params = bottomSpace.getLayoutParams();
-        params.height = RTApplication.getDataBase().getBottomSpace();
+        params.height = RTApplication.getPreferencesData().getBottomSpace();
         bottomSpace.setLayoutParams(params);
 
         showShuffleIcon();
@@ -532,18 +575,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     boolean applyNoShowPreferences() {
         boolean result = false;
         // текущий воспроизводимый файл
-        if (RTApplication.getDataBase().getPlayOnStartMode() != 0 && firstStart) {
-            String filename = RTApplication.getDataBase().getLastPlayedFile();
+        if (RTApplication.getPreferencesData().getPlayOnStartMode() != 0 && firstStart) {
+            String filename = RTApplication.getPreferencesData().getLastPlayedFile();
             if (!filename.isEmpty()) {
-                RTApplication.getGlobalData().createViewableFileList(FileUtils.extractFilePath(filename));
-                ArrayList<FileItem> FileList = RTApplication.getGlobalData().viewableFileList;
+                if (RTApplication.getSoundSourceManager().isFile(filename)) {
+                    RTApplication.getSoundSourceManager().createViewableList(FileUtils.extractFilePath(filename));
+                } else {
+                    RTApplication.getSoundSourceManager().createViewableFavoritesRadioStationsList();
+                }
 
                 if (serviceLink.isMediaServiceReady()) {
-                    //serviceLink.Stop();
                     serviceLink.play(filename);
                 }
-                adapter.update(FileList);
-
+                adapter.update(RTApplication.getSoundSourceManager().getViewableList());
                 result = true;
             }
             firstStart = false;
@@ -602,7 +646,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStop() {
         super.onStop();
-        RTApplication.getDataBase().putAllPreferences();
+        RTApplication.getPreferencesData().putAllPreferences();
     }
 
     // клик на элементе рекуклера
@@ -610,30 +654,100 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         int itemPosition = adapter.recyclerView.getChildLayoutPosition(v);
 
-        ArrayList<FileItem> FileList = RTApplication.getGlobalData().viewableFileList;
-        FileItem item = FileList.get(itemPosition);
+        List<SoundItem> FileList = RTApplication.getSoundSourceManager().getViewableList();
+        if (FileList.size() == 0)
+            return;
 
-        if (item.isParentDirectory()) {
-            if (serviceLink.isMediaServiceReady())
-                RTApplication.getGlobalData().createViewableFileList(item.location);
-            adapter.update(FileList);
-        }
-        else
-        if (item.isDirectory()) {
-            if (serviceLink.isMediaServiceReady())
-                RTApplication.getGlobalData().createViewableFileList(item.getFullName());
-            adapter.update(FileList);
-        }
-        else
-        if (item.isFile()) {
-            if (serviceLink.isMediaServiceReady()) {
-                //serviceLink.Stop();
-                serviceLink.play(item.getFullName());
-            }
+        SoundItem item = FileList.get(itemPosition);
+        boolean needUpdatePositionList = false;
 
-            adapter.update(FileList);
+        switch (item.state) {
+            case fiParentDirectory: // выход на уроверь вверх
+                if (serviceLink.isMediaServiceReady())
+                    RTApplication.getSoundSourceManager().createViewableList(item);
+                adapter.update(FileList);
+                needUpdatePositionList = true;
+                break;
+            case fiDirectory: // директория
+                if (serviceLink.isMediaServiceReady())
+                    RTApplication.getSoundSourceManager().createViewableList(item);
+                adapter.update(FileList);
+                needUpdatePositionList = true;
+                break;
+            case fiFile: // файл
+                if (serviceLink.isMediaServiceReady()) {
+                    serviceLink.play(item.getFullName());
+                }
+                adapter.update(FileList);
+                break;
+            case fiRadioRoot:
+                if (!RTApplication.getSoundSourceManager().createViewableList(item)) {
+                    Toast.makeText(getApplicationContext(), "Ошибка подключенияч к интернету", Toast.LENGTH_SHORT).show();
+                }
+                adapter.update(FileList);
+                needUpdatePositionList = true;
+                break;
+            case fiRadioFavorites:
+                if (!RTApplication.getSoundSourceManager().createViewableList(item)) {
+                    Toast.makeText(getApplicationContext(), "Ошибка подключенияч к интернету", Toast.LENGTH_SHORT).show();
+                }
+                adapter.update(FileList);
+                needUpdatePositionList = true;
+                break;
+            case fiRadioCountry:
+                if (!RTApplication.getSoundSourceManager().createViewableList(item)) {
+                    Toast.makeText(getApplicationContext(), "Ошибка подключенияч к интернету", Toast.LENGTH_SHORT).show();
+                }
+                adapter.update(FileList);
+                needUpdatePositionList = true;
+                break;
+            case fiRadioStation:
+            case fiRadioFavoriteStation:
+                if (serviceLink.isMediaServiceReady()) {
+                    serviceLink.play(item.location);
+                }
+                adapter.update(FileList);
+                break;
+            case fiRadioParentDirectory:
+                RTApplication.getSoundSourceManager().createViewableRootList();
+                adapter.update(FileList);
+                needUpdatePositionList = true;
+                break;
+            case fiRadioStationParentDirectory:
+                if (!RTApplication.getSoundSourceManager().createViewableList(item)) {
+                    Toast.makeText(getApplicationContext(), "Ошибка подключенияч к интернету", Toast.LENGTH_SHORT).show();
+                }
+                adapter.update(FileList);
+                needUpdatePositionList = true;
+                break;
+        }
+
+        if (needUpdatePositionList) {
+            LinearLayoutManager lm = (LinearLayoutManager)filesRecyclerView.getLayoutManager();
+            if (lm != null)
+                lm.scrollToPosition(0);
         }
     }
+
+    RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+
+            LinearLayoutManager lm = (LinearLayoutManager) filesRecyclerView.getLayoutManager();
+            if (lm != null) {
+                int visibleItemCount = lm.getChildCount();//смотрим сколько элементов на экране
+                int totalItemCount = lm.getItemCount();//сколько всего элементов
+                int firstVisibleItems = lm.findFirstVisibleItemPosition();//какая позиция первого элемента
+
+                if (visibleItemCount + firstVisibleItems >= RTApplication.getSoundSourceManager().getViewableList().size() - 1) {
+                    RTApplication.getSoundSourceManager().appendViewableItems();
+
+                    recyclerView.post(() -> adapter.update(RTApplication.getSoundSourceManager().getViewableList()));
+                }
+            }
+        }
+    };
 
 
 /*    @Override
@@ -674,15 +788,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (param instanceof String)
             filename = (String)param;
         //Toast.makeText(getApplicationContext(), "Удаление " + filename, Toast.LENGTH_SHORT).show();
-        RTApplication.getGlobalData().removeFromViewableFileList(filename);
-        adapter.update(RTApplication.getGlobalData().viewableFileList);
+        RTApplication.getSoundSourceManager().removeItem(filename);
+        adapter.update(RTApplication.getSoundSourceManager().getViewableList());
 
         if (filename.equals(serviceLink.getCurrentPlayedSound()))
             serviceLink.nextSound();
-
-        File file = new File(filename);
-        if (file.exists()) {
-            file.delete();
-        }
     }
 }

@@ -3,11 +3,13 @@ package su.rbws.rtplayer.service.soundplayer;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import su.rbws.rtplayer.FileUtils;
 import su.rbws.rtplayer.RTApplication;
+import su.rbws.rtplayer.SoundItem;
 
 // список звуков
 public class SoundList {
@@ -112,7 +114,7 @@ public class SoundList {
         // 2. перебираем папки в том же уровне от текущей до конца
         ArrayList<String> folders = new ArrayList<>();
         String scanFolder = FileUtils.removeLastFolder(folder);
-        String baseFolder = FileUtils.excludePathDelimiter(RTApplication.getDataBase().getBaseDirectory());
+        String baseFolder = FileUtils.excludePathDelimiter(RTApplication.getPreferencesData().getBaseDirectory());
         int index, i;
 
         while (!folder.equals(baseFolder)) {
@@ -238,7 +240,7 @@ public class SoundList {
         // воспроизведение в текущей папке закончено
         ArrayList<String> folders = new ArrayList<>();
         String scanFolder = FileUtils.removeLastFolder(folder);
-        String baseFolder = FileUtils.excludePathDelimiter(RTApplication.getDataBase().getBaseDirectory());
+        String baseFolder = FileUtils.excludePathDelimiter(RTApplication.getPreferencesData().getBaseDirectory());
         int index, i;
         String res;
 
@@ -303,7 +305,7 @@ public class SoundList {
         recentFileList.add(currentPlayedSound);
 
         // максимальное количество песен, которые не будут повторяться
-        int maxDepthRecentList = RTApplication.getDataBase().getMaxDepthRecent();
+        int maxDepthRecentList = RTApplication.getPreferencesData().getMaxDepthRecent();
 
         if (fileList.size() <= maxDepthRecentList)
             maxDepthRecentList = fileList.size() - 1;
@@ -320,5 +322,55 @@ public class SoundList {
         } while (recentFileList.contains(newName));
 
         return newName;
+    }
+
+    public static String getNextRadioStationInAll() {
+        if (currentPlayedSound.isEmpty())
+            return "";
+
+        List<SoundItem> list = RTApplication.getSoundSourceManager().getViewableList();
+
+        int currentindex = -1;
+        for (int i = 0; i < list.size(); ++i) {
+            if (list.get(i).location.equals(currentPlayedSound)) {
+                currentindex = i;
+                break;
+            }
+        }
+
+        if (currentindex == -1)
+            return "";
+
+        // переход на первый файл в папке
+        if (currentindex + 1 >= list.size()) {
+            return list.get(1).location;
+        }
+
+        return list.get(currentindex + 1).location;
+    }
+
+    public static String getPrevRadioStationInAll() {
+        if (currentPlayedSound.isEmpty())
+            return "";
+
+        List<SoundItem> list = RTApplication.getSoundSourceManager().getViewableList();
+
+        int currentindex = -1;
+        for (int i = 0; i < list.size(); ++i) {
+            if (list.get(i).location.equals(currentPlayedSound)) {
+                currentindex = i;
+                break;
+            }
+        }
+
+        if (currentindex == -1)
+            return "";
+
+        // переход на первый файл в папке
+        if (currentindex - 1 < 1) {
+            return list.get(list.size() - 1).location;
+        }
+
+        return list.get(currentindex - 1).location;
     }
 }

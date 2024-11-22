@@ -18,6 +18,7 @@ import java.util.List;
 
 import su.rbws.rtplayer.service.MediaButtonsMapper;
 
+// диалог с нажатиями клавиш
 public class SelectMediaButtonActionDialog extends DialogFragment {
 
     MediaButtonsMapper.MediaButton mediaButton;
@@ -51,7 +52,7 @@ public class SelectMediaButtonActionDialog extends DialogFragment {
         adapter = new MediaButtonActionRecyclerAdapter(recyclerClick);
         adapter.recyclerView = actionsRecyclerView;
         actionsRecyclerView.setAdapter(adapter);
-        adapter.update(RTApplication.getGlobalData().mediaButtonsMapper.mediaButtonActions);
+        adapter.update(RTApplication.mediaButtonsMapper.mediaButtonActions);
 
         return v;
     }
@@ -61,7 +62,7 @@ public class SelectMediaButtonActionDialog extends DialogFragment {
     View.OnClickListener recyclerClick = v -> {
         int itemPosition = adapter.recyclerView.getChildLayoutPosition(v);
 
-        ArrayList<MediaButtonsMapper.MediaButtonAction> mediaButtonAction = RTApplication.getGlobalData().mediaButtonsMapper.mediaButtonActions;
+        ArrayList<MediaButtonsMapper.MediaButtonAction> mediaButtonAction = RTApplication.mediaButtonsMapper.mediaButtonActions;
         MediaButtonsMapper.MediaButtonAction item = mediaButtonAction.get(itemPosition);
 
         mediaButton.action = item.action;
@@ -130,7 +131,7 @@ public class SelectMediaButtonActionDialog extends DialogFragment {
         {
             MediaButtonsMapper.MediaButtonAction item = items.get(position);
 
-            holder.captionTextView.setText(RTApplication.getGlobalData().mediaButtonsMapper.getAction(item.action).description);
+            holder.captionTextView.setText(RTApplication.mediaButtonsMapper.getAction(item.action).description);
         }
 
         @Override

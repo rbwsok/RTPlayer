@@ -5,13 +5,13 @@ import java.util.Map;
 
 // базовый класс для базы данных для хранения настроек
 
-public class DataBaseAbstract {
+public class PreferencesAbstract {
 
     public enum RepeatMode {repNone, repOneSound, repFolder, repAll}
 
     public enum PreferenceValueType {
         ptNone, ptInt, ptString, ptMusicFolder, ptAdditionalMusicFolder, ptToolbarPosition, ptRepeatMode, ptPlayOnStartMode,
-        ptTitleFileInfo, ptSubTitleFileInfo, ptInterruptAction, ptRemapKeysData, ptBackgroundMode
+        ptTitleFileInfo, ptSubTitleFileInfo, ptInterruptAction, ptRemapKeysData, ptBackgroundMode, ptFavoriteList
     }
 
     public static class PreferenceItem {
@@ -27,7 +27,7 @@ public class DataBaseAbstract {
 
     public Map<String, PreferenceItem> data = new LinkedHashMap<>();
 
-    public DataBaseAbstract() {
+    public PreferencesAbstract() {
 
     }
 

@@ -199,7 +199,7 @@ public class MediaServiceLink {
 
     public void getMediaButtonsMapper() {
         if (isMediaServiceReady()) {
-            RTApplication.getGlobalData().mediaButtonsMapper = mediaService.mediaButtonsMapper;
+            RTApplication.mediaButtonsMapper = mediaService.mediaButtonsMapper;
         }
     }
 }

@@ -11,12 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
+// адаптер для рекуклера на главной активити
 public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAdapter.ViewHolder> implements IItemChange
 {
-    private List<FileItem> items;
+    private List<SoundItem> items;
     public RecyclerView recyclerView;
 
     View.OnClickListener onClickListener;
@@ -29,17 +29,25 @@ public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAd
         this.items = null;
         this.activity = activity;
 
-        RTApplication.getGlobalData().metadataExtractor.objectChange = this;
+        RTApplication.getSoundSourceManager().metadataExtractor.objectChange = this;
     }
 
     @Override
     public int getItemViewType(int position) {
         int result = R.layout.recycler_item_sound;
-        FileItem item = items.get(position);
-        if (item.isFile()) {
-            if (item.getFullName().equals(activity.serviceLink.getCurrentPlayedSound())) {
-                result = R.layout.recycler_item_current_sound;
-            }
+        SoundItem item = items.get(position);
+        switch (item.state) {
+            case fiFile:
+                if (item.getFullName().equals(activity.serviceLink.getCurrentPlayedSound())) {
+                    result = R.layout.recycler_item_current_sound;
+                }
+                break;
+            case fiRadioStation:
+            case fiRadioFavoriteStation:
+                if (item.location.equals(activity.serviceLink.getCurrentPlayedSound())) {
+                    result = R.layout.recycler_item_current_sound;
+                }
+                break;
         }
 
         return result;
@@ -59,100 +67,160 @@ public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAd
     {
         holder.recyclerAdapter = this;
 
-        FileItem item = items.get(position);
+        SoundItem item = items.get(position);
         Drawable drawable = null;
         boolean playedFile = false;
 
-        if (item.isFile()) {
-            // запрос данных для отображения
-            RTApplication.getGlobalData().metadataExtractor.getMetadata(item, position);
+        switch (item.state) {
+            case fiFile:
+                // запрос данных для отображения
+                RTApplication.getSoundSourceManager().metadataExtractor.getMetadata(item, position);
 
-            holder.crossImage.setVisibility(View.VISIBLE);
+                holder.crossImage.setImageDrawable(AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_cross));
+                holder.crossImage.setVisibility(View.VISIBLE);
 
-            if (item.getFullName().equals(activity.serviceLink.getCurrentPlayedSound())) {
-                playedFile = true;
-            }
-
-            if (playedFile)
-                drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_current_play);
-            else
-                drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_play);
-
-            if (item.metadataAcquired) {
-                switch (RTApplication.getDataBase().getTitleFileMode()) {
-                    case 0:
-                        holder.songNameTextView.setText(item.name);
-                        break;
-                    case 1:
-                        holder.songNameTextView.setText(item.title);
-                        break;
+                if (item.getFullName().equals(activity.serviceLink.getCurrentPlayedSound())) {
+                    playedFile = true;
                 }
 
-                String str;
-                switch (RTApplication.getDataBase().getSubTitleFileMode()) {
-                    case 0:
-                        holder.infoTextView.setText(item.location);
-                        break;
-                    case 1:
-                        str = "";
-                        if (!item.artist.isEmpty())
-                            str = item.artist;
+                if (playedFile)
+                    drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_current_play);
+                else
+                    drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_play);
 
-                        if (!item.album.isEmpty()) {
-                            if (str.isEmpty())
-                                str = item.album;
-                            else
-                                str = str + " - " + item.album;
-                        }
+                if (item.metadataAcquired) {
+                    switch (RTApplication.getPreferencesData().getTitleFileMode()) {
+                        case 0:
+                            holder.songNameTextView.setText(item.name);
+                            break;
+                        case 1:
+                            holder.songNameTextView.setText(item.title);
+                            break;
+                    }
 
-                        holder.infoTextView.setText(str);
-                        break;
-                    case 2:
-                        str = "";
-                        if (!item.title.isEmpty())
-                            str = item.title;
-
-                        if (!item.artist.isEmpty()) {
-                            if (str.isEmpty())
+                    String str;
+                    switch (RTApplication.getPreferencesData().getSubTitleFileMode()) {
+                        case 0:
+                            holder.infoTextView.setText(item.location);
+                            break;
+                        case 1:
+                            str = "";
+                            if (!item.artist.isEmpty())
                                 str = item.artist;
-                            else
-                                str = str + " - " + item.artist;
-                        }
 
-                        if (!item.album.isEmpty()) {
-                            if (str.isEmpty())
-                                str = item.album;
-                            else
-                                str = str + " - " + item.album;
-                        }
-                        holder.infoTextView.setText(str);
-                        break;
+                            if (!item.album.isEmpty()) {
+                                if (str.isEmpty())
+                                    str = item.album;
+                                else
+                                    str = str + " - " + item.album;
+                            }
+
+                            holder.infoTextView.setText(str);
+                            break;
+                        case 2:
+                            str = "";
+                            if (!item.title.isEmpty())
+                                str = item.title;
+
+                            if (!item.artist.isEmpty()) {
+                                if (str.isEmpty())
+                                    str = item.artist;
+                                else
+                                    str = str + " - " + item.artist;
+                            }
+
+                            if (!item.album.isEmpty()) {
+                                if (str.isEmpty())
+                                    str = item.album;
+                                else
+                                    str = str + " - " + item.album;
+                            }
+                            holder.infoTextView.setText(str);
+                            break;
+                    }
                 }
-            }
-            else {
+                else {
+                    holder.songNameTextView.setText(item.name);
+                    holder.infoTextView.setText(item.location);
+                }
+                break;
+            case fiDirectory:
+                drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_folder);
                 holder.songNameTextView.setText(item.name);
                 holder.infoTextView.setText(item.location);
-            }
-        }
-        else
-        if (item.isDirectory()) {
-            drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_folder);
-            holder.songNameTextView.setText(item.name);
-            holder.infoTextView.setText(item.location);
+                holder.crossImage.setVisibility(View.INVISIBLE);
+                break;
+            case fiParentDirectory:
+                drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_backfolder);
+                holder.songNameTextView.setText(item.name);
+                holder.infoTextView.setText(item.location);
+                holder.crossImage.setVisibility(View.INVISIBLE);
+                break;
+            case fiRadioRoot:
+                drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_internet_radio);
+                holder.songNameTextView.setText(item.name);
+                holder.infoTextView.setText(item.location);
+                holder.crossImage.setVisibility(View.INVISIBLE);
+                break;
+            case fiRadioFavorites:
+                drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_internet_radio);
+                holder.songNameTextView.setText(item.name);
+                holder.infoTextView.setText(item.location);
+                holder.crossImage.setVisibility(View.INVISIBLE);
+                break;
+            case fiRadioCountry:
+                drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_flag);
+                holder.songNameTextView.setText(item.name);
+                holder.infoTextView.setText(item.location);
+                holder.crossImage.setVisibility(View.INVISIBLE);
+                break;
+            case fiRadioStation:
+                if (item.location.equals(activity.serviceLink.getCurrentPlayedSound())) {
+                    playedFile = true;
+                }
 
-            holder.crossImage.setVisibility(View.INVISIBLE);
-        }
-        else
-        if (item.isParentDirectory()) {
-            drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_backfolder);
-            holder.songNameTextView.setText(item.name);
-            holder.infoTextView.setText(item.location);
+                if (playedFile)
+                    drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_current_play);
+                else
+                    drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_play);
 
-            holder.crossImage.setVisibility(View.INVISIBLE);
+                holder.songNameTextView.setText(item.name);
+                holder.infoTextView.setText(item.location);
+
+                if (item.checked)
+                    holder.crossImage.setImageDrawable(AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_heart_on));
+                else
+                    holder.crossImage.setImageDrawable(AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_heart_off));
+                holder.crossImage.setVisibility(View.VISIBLE);
+                break;
+            case fiRadioStationParentDirectory:
+            case fiRadioParentDirectory:
+                drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_backfolder);
+                holder.songNameTextView.setText(item.name);
+                holder.infoTextView.setText(item.location);
+                holder.crossImage.setVisibility(View.INVISIBLE);
+                break;
+            case fiRadioFavoriteStation:
+                if (item.location.equals(activity.serviceLink.getCurrentPlayedSound())) {
+                    playedFile = true;
+                }
+
+                if (playedFile)
+                    drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_current_play);
+                else
+                    drawable = AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_play);
+
+                holder.songNameTextView.setText(item.name);
+                holder.infoTextView.setText(item.location);
+
+                holder.crossImage.setImageDrawable(AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_cross));
+                holder.crossImage.setVisibility(View.VISIBLE);
+                break;
         }
+
         holder.captionImage.setImageDrawable(drawable);
 
-        float mainSize = RTApplication.getDataBase().getTextSize();
+        float mainSize = RTApplication.getPreferencesData().getTextSize();
         holder.songNameTextView.setTextSize(mainSize);
 
         float infoSize = (14.0f / 20.0f) * mainSize;
@@ -170,7 +238,7 @@ public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAd
 
     public int getCurrentPosition() {
         int result = -1;
-        FileItem item;
+        SoundItem item;
         for (int i = 0; i < items.size(); ++i) {
             item = items.get(i);
             if (item.getFullName().equals(activity.serviceLink.getCurrentPlayedSound())) {
@@ -182,7 +250,7 @@ public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAd
         return result;
     }
 
-    public void update(List<FileItem> items) {
+    public void update(List<SoundItem> items) {
         this.items = items;
         notifyDataSetChanged();
     }
@@ -202,13 +270,30 @@ public class SoundsRecyclerAdapter extends RecyclerView.Adapter<SoundsRecyclerAd
             infoTextView = view.findViewById(R.id.info_text_view);
 
             View.OnClickListener crossClick = v -> {
-                RecyclerView.ViewHolder viewHolder = activity.adapter.recyclerView.findContainingViewHolder(v);
+                //RecyclerView.ViewHolder viewHolder = activity.adapter.recyclerView.findContainingViewHolder(v);
+                SoundsRecyclerAdapter.ViewHolder viewHolder = (SoundsRecyclerAdapter.ViewHolder)activity.adapter.recyclerView.findContainingViewHolder(v);
                 if (viewHolder != null) {
                     int itemPosition = viewHolder.getLayoutPosition();
-                    ArrayList<FileItem> fileList = RTApplication.getGlobalData().viewableFileList;
-                    FileItem item = fileList.get(itemPosition);
+                    List<SoundItem> fileList = RTApplication.getSoundSourceManager().getViewableList();
+                    SoundItem item = fileList.get(itemPosition);
 
-                    activity.showDeleteFileDialog(item.getFullName());
+                    switch (item.state) {
+                        case fiFile: // delete file
+                            activity.showDeleteFileDialog(item.getFullName());
+                            break;
+                        case fiRadioStation: // favorites
+                            item.checked = !item.checked;
+                            RTApplication.getSoundSourceManager().changeFavoriteList(item);
+                            if (item.checked)
+                                viewHolder.crossImage.setImageDrawable(AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_heart_on));
+                            else
+                                viewHolder.crossImage.setImageDrawable(AppCompatResources.getDrawable(RTApplication.getContext(), R.drawable.ic_heart_off));
+                            break;
+                        case fiRadioFavoriteStation: // remove from favorites
+                            RTApplication.getSoundSourceManager().changeFavoriteList(item);
+                            update(RTApplication.getSoundSourceManager().getViewableList());
+                            break;
+                    }
                 }
             };
 

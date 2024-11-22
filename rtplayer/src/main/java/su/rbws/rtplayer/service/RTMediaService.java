@@ -155,7 +155,7 @@ public class RTMediaService extends Service {
                             // Приложение не обязано именно снижать громкость,
                             // можно встать на паузу, что мы здесь и делаем.
 //                            mediaSessionCallback.onPause();
-                            switch (RTApplication.getDataBase().getInterruptAction()) {
+                            switch (RTApplication.getPreferencesData().getInterruptAction()) {
                                 case 0: // Поставить на паузу
                                     resumeOnFocusGain = soundPlayer_IsPlayed();
                                     mediaSessionCallback.onPause();

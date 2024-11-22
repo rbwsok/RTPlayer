@@ -40,7 +40,7 @@ public class Utils {
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         );
 
-        int backgroundImage = RTApplication.getDataBase().getBackgroundImage();
+        int backgroundImage = RTApplication.getPreferencesData().getBackgroundImage();
         int backgroundImageResource = 0;
 
         switch (backgroundImage) {

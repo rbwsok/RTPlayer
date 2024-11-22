@@ -22,6 +22,7 @@ import java.util.List;
 import su.rbws.rtplayer.preference.PreferencesActivity;
 import su.rbws.rtplayer.service.MediaButtonsMapper;
 
+// диалог для переопределения клавиш
 public class MediaButtonsDialog extends DialogFragment {
 
     public PreferencesActivity activity;
@@ -57,7 +58,7 @@ public class MediaButtonsDialog extends DialogFragment {
         adapter = new MediaButtonRecyclerAdapter(recyclerClick);
         adapter.recyclerView = buttonsRecyclerView;
         buttonsRecyclerView.setAdapter(adapter);
-        adapter.update(RTApplication.getGlobalData().mediaButtonsMapper.mediaButtons);
+        adapter.update(RTApplication.mediaButtonsMapper.mediaButtons);
 
         exitButton = v.findViewById(R.id.button_exit);
         exitButton.setOnClickListener(buttonClick);
@@ -80,7 +81,7 @@ public class MediaButtonsDialog extends DialogFragment {
     View.OnClickListener recyclerClick = v -> {
         int itemPosition = adapter.recyclerView.getChildLayoutPosition(v);
 
-        ArrayList<MediaButtonsMapper.MediaButton> mediaButtons = RTApplication.getGlobalData().mediaButtonsMapper.mediaButtons;
+        ArrayList<MediaButtonsMapper.MediaButton> mediaButtons = RTApplication.mediaButtonsMapper.mediaButtons;
         MediaButtonsMapper.MediaButton mediaButton = mediaButtons.get(itemPosition);
 
         activity.showSelectMediaButtonActionsDialog(mediaButton);
@@ -96,7 +97,7 @@ public class MediaButtonsDialog extends DialogFragment {
         }
 
         if (v == defaultButton) {
-            RTApplication.getGlobalData().mediaButtonsMapper.setDefault();
+            RTApplication.mediaButtonsMapper.setDefault();
             updateRecyclerView();
         }
 
@@ -118,10 +119,10 @@ public class MediaButtonsDialog extends DialogFragment {
 
                     MediaButtonsMapper.MediaButton button;
 
-                    button = RTApplication.getGlobalData().mediaButtonsMapper.newButton();
+                    button = RTApplication.mediaButtonsMapper.newButton();
                     button.keyCode = currentKeyCode;
                     button.action = MediaButtonsMapper.MediaButtonActionType.mbaNone;
-                    RTApplication.getGlobalData().mediaButtonsMapper.mediaButtons.add(button);
+                    RTApplication.mediaButtonsMapper.mediaButtons.add(button);
                 }
 
             }
@@ -131,7 +132,7 @@ public class MediaButtonsDialog extends DialogFragment {
     };
 
     public void updateRecyclerView() {
-        List<MediaButtonsMapper.MediaButton> items = RTApplication.getGlobalData().mediaButtonsMapper.mediaButtons;
+        List<MediaButtonsMapper.MediaButton> items = RTApplication.mediaButtonsMapper.mediaButtons;
         adapter.update(items);
     }
 
@@ -140,7 +141,7 @@ public class MediaButtonsDialog extends DialogFragment {
     public void onDismiss(@NonNull DialogInterface dialog) {
         super.onDismiss(dialog);
 
-        RTApplication.getDataBase().putAllPreferences();
+        RTApplication.getPreferencesData().putAllPreferences();
     }
 
     // onCancel вызывается при нажатии на "назад"
@@ -180,7 +181,7 @@ public class MediaButtonsDialog extends DialogFragment {
             MediaButtonsMapper.MediaButton item = items.get(position);
 
             holder.keyCode.setText(Integer.toString(item.keyCode));
-            holder.action.setText(RTApplication.getGlobalData().mediaButtonsMapper.getAction(item.action).description);
+            holder.action.setText(RTApplication.mediaButtonsMapper.getAction(item.action).description);
         }
 
         @Override
@@ -210,7 +211,7 @@ public class MediaButtonsDialog extends DialogFragment {
                     if (viewHolder != null) {
                         int itemPosition = viewHolder.getLayoutPosition();
 
-                        ArrayList<MediaButtonsMapper.MediaButton> mediaButtons = RTApplication.getGlobalData().mediaButtonsMapper.mediaButtons;
+                        ArrayList<MediaButtonsMapper.MediaButton> mediaButtons = RTApplication.mediaButtonsMapper.mediaButtons;
                         mediaButtons.remove(itemPosition);
                     }
                     updateRecyclerView();

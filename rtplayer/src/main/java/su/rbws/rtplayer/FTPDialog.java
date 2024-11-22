@@ -60,7 +60,7 @@ public class FTPDialog extends DialogFragment {
         buttonExit.setOnClickListener(buttonclick);
 
         PortEditTextNumberSigned = v.findViewById(R.id.PortEditTextNumberSigned);
-        PortEditTextNumberSigned.setText(Integer.toString(RTApplication.getDataBase().getFTPPort()));
+        PortEditTextNumberSigned.setText(Integer.toString(RTApplication.getPreferencesData().getFTPPort()));
 
         StatusTextView = v.findViewById(R.id.StatusTextView);
         Address1TextView = v.findViewById(R.id.Address1TextView);
@@ -138,7 +138,7 @@ public class FTPDialog extends DialogFragment {
                     if (port < 4000 || port > 65535) {
                         ftperror = FTPError.ftpLocalPort;
                     } else {
-                        RTApplication.getDataBase().setFTPPort(port);
+                        RTApplication.getPreferencesData().setFTPPort(port);
                         ftpstarted = true;
                         startFTP(port);
                     }
@@ -164,7 +164,7 @@ public class FTPDialog extends DialogFragment {
 
         ftpstarted = false;
         stopFTP();
-        RTApplication.getDataBase().putAllPreferences();
+        RTApplication.getPreferencesData().putAllPreferences();
     }
 
     // onCancel вызывается при нажатии на "назад"
@@ -176,7 +176,7 @@ public class FTPDialog extends DialogFragment {
     FTPServer server;
 
     public void startFTP(int port) {
-        String rootfolder = RTApplication.getDataBase().getBaseDirectory();
+        String rootfolder = RTApplication.getPreferencesData().getBaseDirectory();
         File rootfile = new File(rootfolder);
 
         NativeFileSystem fs = new NativeFileSystem(rootfile);

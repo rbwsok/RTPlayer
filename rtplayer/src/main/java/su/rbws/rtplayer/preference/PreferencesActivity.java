@@ -46,7 +46,7 @@ public class PreferencesActivity extends AppCompatActivity implements SharedPref
         ImageView backImageView;
         FrameLayout preferenceFrameLayout;
 
-        RTApplication.getDataBase().sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        RTApplication.getPreferencesData().sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
         View.OnClickListener imageBackClick = v -> PreferencesActivity.super.getOnBackPressedDispatcher().onBackPressed();
 
@@ -70,12 +70,12 @@ public class PreferencesActivity extends AppCompatActivity implements SharedPref
                       ")");
 
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams)linearLayout.getLayoutParams();
-        params.topMargin = RTApplication.getDataBase().getTopSpace();
+        params.topMargin = RTApplication.getPreferencesData().getTopSpace();
         params.leftMargin = RTApplication.ScreenAuto.INSETS_LEFT -
                 RTApplication.ScreenAuto.PADDING_LEFT +
-                RTApplication.getDataBase().getLeftSpace();
-        params.rightMargin = RTApplication.getDataBase().getRightSpace();
-        params.bottomMargin = RTApplication.getDataBase().getBottomSpace();
+                RTApplication.getPreferencesData().getLeftSpace();
+        params.rightMargin = RTApplication.getPreferencesData().getRightSpace();
+        params.bottomMargin = RTApplication.getPreferencesData().getBottomSpace();
         linearLayout.setLayoutParams(params);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -93,35 +93,35 @@ public class PreferencesActivity extends AppCompatActivity implements SharedPref
     @Override
     public void onSharedPreferenceChanged(@NonNull SharedPreferences sharedPreferences, String key) {
         String value = sharedPreferences.getString(key, "");
-        RTApplication.getDataBase().set(key, value);
+        RTApplication.getPreferencesData().set(key, value);
 
         preferencesFragment.updateSummary();
 
-        if (key.equals(DataBasePreferences.PREFERENCE_NAME_TOP_SPACE)) {
+        if (key.equals(PreferencesData.PREFERENCE_NAME_TOP_SPACE)) {
             ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams)linearLayout.getLayoutParams();
             params.topMargin = Utils.parseInt(sharedPreferences.getString(key, "0"));
             linearLayout.setLayoutParams(params);
         }
 
-        if (key.equals(DataBasePreferences.PREFERENCE_NAME_LEFT_SPACE)) {
+        if (key.equals(PreferencesData.PREFERENCE_NAME_LEFT_SPACE)) {
             ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams)linearLayout.getLayoutParams();
             params.leftMargin = Utils.parseInt(sharedPreferences.getString(key, "0"));
             linearLayout.setLayoutParams(params);
         }
 
-        if (key.equals(DataBasePreferences.PREFERENCE_NAME_RIGHT_SPACE)) {
+        if (key.equals(PreferencesData.PREFERENCE_NAME_RIGHT_SPACE)) {
             ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams)linearLayout.getLayoutParams();
             params.rightMargin = Utils.parseInt(sharedPreferences.getString(key, "0"));
             linearLayout.setLayoutParams(params);
         }
 
-        if (key.equals(DataBasePreferences.PREFERENCE_NAME_BOTTOM_SPACE)) {
+        if (key.equals(PreferencesData.PREFERENCE_NAME_BOTTOM_SPACE)) {
             ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams)linearLayout.getLayoutParams();
             params.bottomMargin = Utils.parseInt(sharedPreferences.getString(key, "0"));
             linearLayout.setLayoutParams(params);
         }
 
-        if (key.equals(DataBasePreferences.PREFERENCE_NAME_BACKGROUND_IMAGE)) {
+        if (key.equals(PreferencesData.PREFERENCE_NAME_BACKGROUND_IMAGE)) {
             Utils.setImageBackground(this, this.findViewById(R.id.main));
         }
     }
@@ -130,7 +130,7 @@ public class PreferencesActivity extends AppCompatActivity implements SharedPref
     protected void onResume() {
         super.onResume();
 
-        RTApplication.getDataBase().putAllPreferences();
+        RTApplication.getPreferencesData().putAllPreferences();
     }
 
     public void showFTPDialog() {

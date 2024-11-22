@@ -3,7 +3,9 @@ package su.rbws.rtplayer;
 import android.app.Application;
 import android.content.Context;
 
-import su.rbws.rtplayer.preference.DataBasePreferences;
+import su.rbws.rtplayer.datasource.SoundSourceManager;
+import su.rbws.rtplayer.preference.PreferencesData;
+import su.rbws.rtplayer.service.MediaButtonsMapper;
 
 public class RTApplication extends Application {
 
@@ -17,26 +19,32 @@ public class RTApplication extends Application {
         return getApplication().getApplicationContext();
     }
 
-    private static DataBasePreferences preferencesDataBase;
-    public static DataBasePreferences getDataBase() {
+    private static PreferencesData preferencesDataBase;
+    public static PreferencesData getPreferencesData() {
         return preferencesDataBase;
     }
 
-
-    private static GlobalData globalData;
-    public static GlobalData getGlobalData() {
-        return globalData;
+    private static SoundSourceManager soundSourceManager;
+    public static SoundSourceManager getSoundSourceManager() {
+        return soundSourceManager;
     }
+
+    private static CacheDataBase chacheDataBase;
+    public static CacheDataBase getChacheDataBase() {
+        return chacheDataBase;
+    }
+
+    public static MediaButtonsMapper mediaButtonsMapper;
 
     @Override
     public void onCreate() {
         super.onCreate();
         app = this;
 
-        preferencesDataBase = new DataBasePreferences();
-        globalData = new GlobalData();
+        chacheDataBase = new CacheDataBase();
+        soundSourceManager = new SoundSourceManager();
+        preferencesDataBase = new PreferencesData();
     }
-
 
     // описание экрана ГУ
     public static class ScreenAuto {
@@ -58,5 +66,5 @@ public class RTApplication extends Application {
         public final static int WORK_RESOLUTION_Y = 720;
     }
 
-    public static final String version = "1.0.1637";
+    public static final String version = "1.0.2179";
 }

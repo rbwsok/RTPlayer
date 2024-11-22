@@ -80,58 +80,70 @@ public class SoundPlayer {
     }
 
     private void playPrevSound() {
-        // включено перемешивание
-        if (RTApplication.getDataBase().getShuffleMode() != 0) {
-            SoundList.currentPlayedSound = SoundList.getRandomFile();
-            soundSystem.play(SoundList.currentPlayedSound);
-            return;
-        }
-
-        // перемешивания нет
-        switch (RTApplication.getDataBase().getRepeatMode()) {
-            case repNone:
-                SoundList.currentPlayedSound = "";
-                soundSystem.play("");
+        if (RTApplication.getSoundSourceManager().isFile(SoundList.currentPlayedSound)) {
+            // включено перемешивание
+            if (RTApplication.getPreferencesData().getShuffleMode() != 0) {
+                SoundList.currentPlayedSound = SoundList.getRandomFile();
+                soundSystem.play(SoundList.currentPlayedSound);
                 return;
-            case repOneSound:
-                soundSystem.play(SoundList.currentPlayedSound);
-                break;
-            case repFolder:
-                SoundList.currentPlayedSound = SoundList.getPrevFileInFolder();
-                soundSystem.play(SoundList.currentPlayedSound);
-                break;
-            case repAll:
-                SoundList.currentPlayedSound = SoundList.getPrevFileInAllFiles();
-                soundSystem.play(SoundList.currentPlayedSound);
-                break;
+            }
+
+            // перемешивания нет
+            switch (RTApplication.getPreferencesData().getRepeatMode()) {
+                case repNone:
+                    SoundList.currentPlayedSound = "";
+                    soundSystem.play("");
+                    return;
+                case repOneSound:
+                    soundSystem.play(SoundList.currentPlayedSound);
+                    break;
+                case repFolder:
+                    SoundList.currentPlayedSound = SoundList.getPrevFileInFolder();
+                    soundSystem.play(SoundList.currentPlayedSound);
+                    break;
+                case repAll:
+                    SoundList.currentPlayedSound = SoundList.getPrevFileInAllFiles();
+                    soundSystem.play(SoundList.currentPlayedSound);
+                    break;
+            }
+        }
+        else {
+            SoundList.currentPlayedSound = SoundList.getPrevRadioStationInAll();
+            soundSystem.play(SoundList.currentPlayedSound);
         }
     }
 
     private void playNextSound() {
-        // включено перемешивание
-        if (RTApplication.getDataBase().getShuffleMode() != 0) {
-            SoundList.currentPlayedSound = SoundList.getRandomFile();
-            soundSystem.play(SoundList.currentPlayedSound);
-            return;
-        }
-
-        // перемешивания нет
-        switch (RTApplication.getDataBase().getRepeatMode()) {
-            case repNone:
-                SoundList.currentPlayedSound = "";
-                soundSystem.play("");
+        if (RTApplication.getSoundSourceManager().isFile(SoundList.currentPlayedSound)) {
+            // включено перемешивание
+            if (RTApplication.getPreferencesData().getShuffleMode() != 0) {
+                SoundList.currentPlayedSound = SoundList.getRandomFile();
+                soundSystem.play(SoundList.currentPlayedSound);
                 return;
-            case repOneSound:
-                soundSystem.play(SoundList.currentPlayedSound);
-                break;
-            case repFolder:
-                SoundList.currentPlayedSound = SoundList.getNextFileInFolder();
-                soundSystem.play(SoundList.currentPlayedSound);
-                break;
-            case repAll:
-                SoundList.currentPlayedSound = SoundList.getNextFileInAllFiles();
-                soundSystem.play(SoundList.currentPlayedSound);
-                break;
+            }
+
+            // перемешивания нет
+            switch (RTApplication.getPreferencesData().getRepeatMode()) {
+                case repNone:
+                    SoundList.currentPlayedSound = "";
+                    soundSystem.play("");
+                    return;
+                case repOneSound:
+                    soundSystem.play(SoundList.currentPlayedSound);
+                    break;
+                case repFolder:
+                    SoundList.currentPlayedSound = SoundList.getNextFileInFolder();
+                    soundSystem.play(SoundList.currentPlayedSound);
+                    break;
+                case repAll:
+                    SoundList.currentPlayedSound = SoundList.getNextFileInAllFiles();
+                    soundSystem.play(SoundList.currentPlayedSound);
+                    break;
+            }
+        }
+        else {
+            SoundList.currentPlayedSound = SoundList.getNextRadioStationInAll();
+            soundSystem.play(SoundList.currentPlayedSound);
         }
     }
 }

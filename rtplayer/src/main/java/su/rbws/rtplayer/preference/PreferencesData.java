@@ -13,7 +13,7 @@ import su.rbws.rtplayer.RTApplication;
 import su.rbws.rtplayer.Utils;
 import su.rbws.rtplayer.FileUtils;
 
-public class DataBasePreferences extends DataBaseAbstract {
+public class PreferencesData extends PreferencesAbstract {
     public SharedPreferences sharedPreferences;
 
     public final static String PREFERENCE_NAME_TOOLBAR_POSITION = "toolbar_position_preference";
@@ -38,9 +38,10 @@ public class DataBasePreferences extends DataBaseAbstract {
     public final static String PREFERENCE_NAME_FTP_SERVER = "ftp_server_preference";
     public final static String PREFERENCE_NAME_FTP_SERVER_PORT = "ftp_server_port_preference";
     public final static String PREFERENCE_NAME_BACKGROUND_IMAGE = "background_image_preference";
+    public final static String PREFERENCE_NAME_FAVORITE_LIST = "favorite_list_preference";
 
     private void CreateItems() {
-        DataBaseAbstract.PreferenceItem item;
+        PreferencesAbstract.PreferenceItem item;
 
         // ftp серверitem
         item = new PreferenceItem();
@@ -231,9 +232,17 @@ public class DataBasePreferences extends DataBaseAbstract {
         item.preferenceType = PreferenceValueType.ptRemapKeysData;
         item.isShow = false;
         add(item);
+
+        // избранное
+        item = new PreferenceItem();
+        item.name = PREFERENCE_NAME_FAVORITE_LIST;
+        item.defaultValue = "";
+        item.preferenceType = PreferenceValueType.ptFavoriteList;
+        item.isShow = false;
+        add(item);
     }
 
-    public DataBasePreferences() {
+    public PreferencesData() {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(RTApplication.getContext());
 
         CreateItems();
@@ -293,8 +302,8 @@ public class DataBasePreferences extends DataBaseAbstract {
         return getValueAsString(PREFERENCE_NAME_ADDITIONAL_DIRECTORY);
     }
 
-    public DataBaseAbstract.RepeatMode getRepeatMode() {
-        DataBaseAbstract.RepeatMode result = RepeatMode.repNone;
+    public PreferencesAbstract.RepeatMode getRepeatMode() {
+        PreferencesAbstract.RepeatMode result = RepeatMode.repNone;
         PreferenceItem item = get(PREFERENCE_NAME_REPEAT_MODE);
         if (item != null) {
             switch (Utils.parseInt(item.value)) {
@@ -378,12 +387,16 @@ public class DataBasePreferences extends DataBaseAbstract {
         return getValueAsInt(PREFERENCE_NAME_BACKGROUND_IMAGE);
     }
 
+    public void setFavoritesXML(String xml) {
+        set(PREFERENCE_NAME_FAVORITE_LIST, xml);
+    }
+
     // из редактора preference в базу
     public void getAllPreferences() {
         SharedPreferences.Editor editor;
 
-        for (Map.Entry<String, DataBaseAbstract.PreferenceItem> entry : data.entrySet()) {
-            DataBaseAbstract.PreferenceItem item = entry.getValue();
+        for (Map.Entry<String, PreferencesAbstract.PreferenceItem> entry : data.entrySet()) {
+            PreferencesAbstract.PreferenceItem item = entry.getValue();
 
             item.value = sharedPreferences.getString(item.name, "");
 
@@ -426,6 +439,15 @@ public class DataBasePreferences extends DataBaseAbstract {
                     }
                     break;
                 }*/
+                case ptFavoriteList:
+                    if (item.value.isEmpty()) {
+                        item.value = RTApplication.getSoundSourceManager().serializationFavoriteXML();
+                        editor = sharedPreferences.edit();
+                        editor.putString(item.name, item.value);
+                        editor.commit();
+                    }
+                    RTApplication.getSoundSourceManager().deserializationFavoriteXML(item.value);
+                    break;
                 case ptMusicFolder: {
                     File extp = Environment.getExternalStorageDirectory();
                     String rootexternalpath = extp.getAbsolutePath();
@@ -448,11 +470,14 @@ public class DataBasePreferences extends DataBaseAbstract {
     public void putAllPreferences() {
         SharedPreferences.Editor editor;
 
-        for (Map.Entry<String, DataBaseAbstract.PreferenceItem> entry : data.entrySet()) {
-            DataBaseAbstract.PreferenceItem item = entry.getValue();
+        for (Map.Entry<String, PreferencesAbstract.PreferenceItem> entry : data.entrySet()) {
+            PreferencesAbstract.PreferenceItem item = entry.getValue();
 
 //            if (item.preferenceType == PreferenceValueType.ptRemapKeysData)
 //                item.value = RTApplication.getGlobalData().mediaButtonsMapper.serialization();
+
+            if (item.preferenceType == PreferenceValueType.ptFavoriteList)
+                item.value = RTApplication.getSoundSourceManager().serializationFavoriteXML();
 
             editor = sharedPreferences.edit();
             editor.putString(item.name, item.value);
@@ -462,8 +487,8 @@ public class DataBasePreferences extends DataBaseAbstract {
 
     // установка значений по умолчанию (и в базе и в редакторе)
     public void putAllDefaultPreferences() {
-        for (Map.Entry<String, DataBaseAbstract.PreferenceItem> entry : data.entrySet()) {
-            DataBaseAbstract.PreferenceItem item = entry.getValue();
+        for (Map.Entry<String, PreferencesAbstract.PreferenceItem> entry : data.entrySet()) {
+            PreferencesAbstract.PreferenceItem item = entry.getValue();
 
             item.value = item.defaultValue;
         }

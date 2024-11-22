@@ -48,12 +48,15 @@ public class SoundSystemExoPlayer extends SoundSystemAbstract {
         if (player != null) {
             player.stop();
 
-            MediaItem mediaItem = MediaItem.fromUri(filename);
-            player.setMediaItem(mediaItem);
-            player.prepare();
-            player.play();
+            try {
+                MediaItem mediaItem = MediaItem.fromUri(filename);
+                player.setMediaItem(mediaItem);
+                player.prepare();
+                player.play();
 
-            player.setPlayWhenReady(true);
+                player.setPlayWhenReady(true);
+            } catch (Exception e) {
+            }
         }
     }
 
