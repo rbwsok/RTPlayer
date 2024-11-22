@@ -126,6 +126,7 @@ RTPlayer реализует два user case:
 ### Сторонний код и ресурсы
 
 Для реализации FTP была взята библиотека MinimalFTP - https://github.com/Guichaguri/MinimalFTP без каких либо изменений.
+
 Браузер для интернет радиостанций - https://github.com/sfuhrm/radiobrowser4j (https://www.radio-browser.info)
 
 ### Лицензия
