@@ -14,7 +14,13 @@
 - обработка внешних событий, влияющих на звук (включение заднего хода, уведомление от навигации и т.д.).
 - регулировка пустого пространства (сжимание рабочей области) - чтобы от нажатий на краях экрана не вызывались системные окна (например управление климатом).
 - встроенный FTP сервер для закачивания музыки с телефона или ПК (необходима активация WiFi в инженерном меню ГУ).
-- изображение фона в стиле стандартных тем ГУ. По 2 изображения на тему.
+- изображение фона - стандартные бекграунды для трех тем. По 2 изображения на тему.
+![classic 1](https://github.com/rbwsok/RTPlayer/blob/main/doc/background_classic_1_320.jpg)
+![classic 2](https://github.com/rbwsok/RTPlayer/blob/main/doc/background_classic_2_320.jpg)
+![stream 1](https://github.com/rbwsok/RTPlayer/blob/main/doc/background_stream_1_320.jpg)
+![stream 2](https://github.com/rbwsok/RTPlayer/blob/main/doc/background_stream_2_320.jpg)
+![style 1](https://github.com/rbwsok/RTPlayer/blob/main/doc/background_style_1_320.jpg)
+![style 2](https://github.com/rbwsok/RTPlayer/blob/main/doc/background_style_2_320.jpg)
 - регулировка размера текста на главном экране.
 - работа с двумя usb накопителями.
 - поддержка интернет радиостанций, браузер через сервис (https://www.radio-browser.info).
