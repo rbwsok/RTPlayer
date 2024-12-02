@@ -7,7 +7,7 @@ import android.media.MediaMetadataRetriever;
 
 import androidx.annotation.NonNull;
 
-// вытаскиватель метаинформации из mp3 файлов (исполнитель, альбом и т.д.)
+// вытаскиватель метаинформации из файлов (исполнитель, альбом и т.д.)
 public class MetadataExtractor {
     public static class MetadataItem {
         public String name;

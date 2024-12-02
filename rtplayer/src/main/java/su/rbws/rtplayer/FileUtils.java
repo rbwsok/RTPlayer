@@ -148,7 +148,9 @@ public class FileUtils {
         for (File file : list) {
             if (!file.isDirectory()) {
                 fileext = extractFileExt(file.getAbsolutePath());
-                if (fileext.equals(".mp3"))
+                if (fileext.equalsIgnoreCase(".mp3") ||
+                        fileext.equalsIgnoreCase(".ogg") ||
+                        fileext.equalsIgnoreCase(".flac"))
                     fileList.add(file.getAbsolutePath());
             }
         }

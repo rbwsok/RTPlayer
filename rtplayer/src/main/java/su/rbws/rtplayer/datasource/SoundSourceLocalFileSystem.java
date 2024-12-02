@@ -129,7 +129,9 @@ public class SoundSourceLocalFileSystem extends SoundSourceAbstract {
                 for (File file : list) {
                     if (file.isFile()) {
                         fileext = FileUtils.extractFileExt(file.getName());
-                        if (!fileext.equalsIgnoreCase(".mp3")) {
+                        if (!fileext.equalsIgnoreCase(".mp3") &&
+                                !fileext.equalsIgnoreCase(".ogg") &&
+                                !fileext.equalsIgnoreCase(".flac")) {
                             continue;
                         }
                     }
