@@ -66,5 +66,5 @@ public class RTApplication extends Application {
         public final static int WORK_RESOLUTION_Y = 720;
     }
 
-    public static final String version = "1.0.2184";
+    public static final String version = "1.0.2187";
 }

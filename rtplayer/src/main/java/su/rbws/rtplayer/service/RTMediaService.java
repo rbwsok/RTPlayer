@@ -140,10 +140,10 @@ public class RTMediaService extends Service {
                             mediaSessionCallback.onPause();
                             break;
                         case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                            resumeOnFocusGain = soundPlayer_IsPlayed();
+                            /*resumeOnFocusGain = soundPlayer_IsPlayed();
                             playbackDelayed = false;
                             mediaSessionCallback.onPause();
-                            break;
+                            break;*/
                         case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
                             playbackDelayed = false;
                             // Фокус отняли, потому что какому-то приложению надо
