@@ -1,0 +1,148 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+  
+jobs:
+  ###############################################################
+  # Поиск секретов
+  secrets:
+    runs-on: ubuntu-24.04
+    steps:
+      # Скачивание кода
+      - name: Checkout full history code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # вся история
+
+      # Проверка репозитория на секреты. Gitleaks
+      - name: Secrets searching (Gitleaks)
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Проверка репозитория на секреты. Trivy
+      - name: Secrets searching (Trivy)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: 'fs'
+          scanners: 'secret'
+          format: 'sarif'
+          output: 'trivy-secrets-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      # Выгрузка результатов в GitHub Code Scanning
+      - name: Upload secrets (Trivy)
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: 'trivy-secrets-results.sarif'
+          category: 'trivy-secrets'
+          
+      # Сохранение отчета в CI Артефакты
+      - name: Upload secrets to artifact (Trivy)
+        uses: actions/upload-artifact@v7
+        with:
+          name: trivy-secrets-results
+          path: trivy-secrets-results.sarif
+          retention-days: 7          
+
+      # Проверка конфигураций
+      - name: Audit config (Trivy)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: 'config'
+          format: 'sarif'
+          output: 'trivy-iac-results.sarif'
+
+      # Выгрузка результатов в GitHub Code Scanning
+      - name: Upload IaC misconfigurations (Trivy)
+        uses: github/codeql-action/upload-sarif@v4        
+        with:
+          sarif_file: 'trivy-iac-results.sarif'
+          category: 'trivy-iac'
+
+      # Сохранение отчета в CI Артефакты
+      - name: Upload IaC misconfigurations to artifact (Trivy)
+        uses: actions/upload-artifact@v7
+        with:
+          name: trivy-iac-results
+          path: trivy-iac-results.sarif
+          retention-days: 7
+  ###############################################################
+  # Статический анализ (SAST)
+  sast:
+    runs-on: ubuntu-24.04
+    needs: secrets
+    steps:
+      # Скачивание кода
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      # Сканирование исходного кода. Trivy.
+      - name: SAST (Trivy)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: 'fs'
+          scanners: 'vuln,misconfig'
+          format: 'sarif'
+          output: 'trivy-sast-results.sarif'
+          exit-code: '0'
+
+      # Выгрузка результатов в GitHub Code Scanning
+      - name: Upload SAST Results (Trivy)
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: 'trivy-sast-results.sarif'
+          category: 'trivy-sast-results'
+
+      # Сохранение отчета в CI Артефакты (Trivy)
+      - name: Upload SAST Results (Trivy)
+        uses: actions/upload-artifact@v7
+        with:
+          name: trivy-sast-results
+          path: trivy-sast-results.sarif
+          retention-days: 7
+
+      # Сканирование исходного кода. Semgrep.
+      - name: SAST (Semgrep)
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/src" returntocorp/semgrep \
+            semgrep scan --config=auto --sarif-output=/src/semgrep-sast-results.sarif
+
+      # Выгрузка результатов в GitHub Code Scanning
+      - name: Upload SAST Results (Trivy)
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: 'semgrep-sast-results.sarif'
+          category: 'semgrep-sast-results'
+
+      # Сохранение отчета в CI Артефакты (Semgrep)
+      - name: Upload SAST Results (Semgrep)
+        uses: actions/upload-artifact@v7
+        with:
+          name: semgrep-sast-results
+          path: semgrep-sast-results.sarif
+          retention-days: 7
+          
+  ###############################################################
+  # Сборка          
+  sast:
+    runs-on: ubuntu-24.04
+    needs: secrets
+    steps:
+    - uses: actions/checkout@v4
+    - name: set up JDK 11
+      uses: actions/setup-java@v4
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Build with Gradle
+      run: ./gradlew build
