@@ -156,6 +156,7 @@ jobs:
         uses: github/codeql-action/init@v4
         with:
           languages: 'java-kotlin'
+          build-mode: none
 
       - name: Build
         run: ./gradlew build -x lint
