@@ -98,7 +98,7 @@ jobs:
           output: 'trivy-sast-results.sarif'
           exit-code: '0'
 
-      # Выгрузка результатов в GitHub Code Scanning
+      # Выгрузка результатов в GitHub Code Scanning (Trivy)
       - name: Upload SAST Results (Trivy)
         uses: github/codeql-action/upload-sarif@v4
         with:
@@ -149,12 +149,20 @@ jobs:
       - name: SAST (Semgrep)
         run: semgrep scan --config=p/ci --sarif --output=semgrep-sast-results.sarif
 
-      # Загрузка результатов в GitHub Security Dashboard
-      - name: Upload SAST Results
+      # Загрузка результатов в GitHub Security Dashboard (Semgrep)
+      - name: Upload SAST Results (Semgrep)
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: semgrep-sast-results.sarif
-          category: 'semgrep-sast-results'
+          category: semgrep-sast-results
+
+      # Сохранение отчета в CI Артефакты (Semgrep)
+      - name: Upload SAST Results (Semgrep)
+        uses: actions/upload-artifact@v7
+        with:
+          name: semgrep-sast-results
+          path: semgrep-sast-results.sarif
+          retention-days: 7          
           
   ###############################################################
   # Сборка          
