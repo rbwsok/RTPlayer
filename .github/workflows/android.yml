@@ -130,9 +130,9 @@ jobs:
           
   ###############################################################
   # Сборка          
-  sast:
+  build:
     runs-on: ubuntu-24.04
-    needs: secrets
+    needs: sast
     steps:
     - uses: actions/checkout@v4
     - name: set up JDK 11
