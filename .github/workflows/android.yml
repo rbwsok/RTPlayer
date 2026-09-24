@@ -77,9 +77,10 @@ jobs:
           name: trivy-iac-results
           path: trivy-iac-results.sarif
           retention-days: 7
+  
   ###############################################################
-  # Статический анализ (SAST)
-  sast:
+  # Статический анализ (SAST Trivy)
+  sast_trivy:
     runs-on: ubuntu-24.04
     needs: secrets
     steps:
@@ -113,31 +114,53 @@ jobs:
           retention-days: 7
 
       # Сканирование исходного кода. Semgrep.
-      - name: SAST (Semgrep)
-        run: |
-          docker run --rm -v "${{ github.workspace }}:/src" returntocorp/semgrep \
-            semgrep scan --config=auto --sarif-output=/src/semgrep-sast-results.sarif
+#      - name: SAST (Semgrep)
+#        run: |
+#          docker run --rm -v "${{ github.workspace }}:/src" returntocorp/semgrep \
+#            semgrep scan --config=auto --sarif-output=/src/semgrep-sast-results.sarif
+
+#      # Сохранение отчета в CI Артефакты (Semgrep)
+#      - name: Upload SAST Results (Semgrep)
+#        uses: actions/upload-artifact@v7
+#        with:
+#          name: semgrep-sast-results
+#          path: semgrep-sast-results.sarif
+#          retention-days: 7
 
       # Выгрузка результатов в GitHub Code Scanning
-      - name: Upload SAST Results (Trivy)
+  #    - name: Upload SAST Results (Trivy)
+  #      uses: github/codeql-action/upload-sarif@v4
+  #      with:
+  #        sarif_file: 'semgrep-sast-results.sarif'
+  #        category: 'semgrep-sast-results'
+
+  ###############################################################
+  # Статический анализ (SAST Semgrep)
+  sast_semgrep:
+    runs-on: ubuntu-24.04
+    needs: secrets    
+    container:
+      image: semgrep/semgrep:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      # Сканирование с базовым набором правил для CI и выводом в формате SARIF
+      - name: SAST (Semgrep)
+        run: semgrep scan --config=p/ci --sarif --output=semgrep-sast-results.sarif
+
+      # Загрузка результатов в GitHub Security Dashboard
+      - name: Upload SAST Results
         uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: 'semgrep-sast-results.sarif'
+          sarif_file: semgrep-sast-results.sarif
           category: 'semgrep-sast-results'
-
-      # Сохранение отчета в CI Артефакты (Semgrep)
-      - name: Upload SAST Results (Semgrep)
-        uses: actions/upload-artifact@v7
-        with:
-          name: semgrep-sast-results
-          path: semgrep-sast-results.sarif
-          retention-days: 7
           
   ###############################################################
   # Сборка          
   build:
     runs-on: ubuntu-24.04
-    needs: sast
+    needs: [sast_trivy, sast_semgrep]
     steps:
     - uses: actions/checkout@v7
     - name: set up JDK 17
