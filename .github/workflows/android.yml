@@ -144,7 +144,7 @@ jobs:
       uses: actions/setup-java@v6
       with:
         java-version: '17'
-        distribution: 'temurin'
+        distribution: 'zulu'
         cache: gradle
 
     - name: Grant execute permission for gradlew
