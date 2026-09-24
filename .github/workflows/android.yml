@@ -113,27 +113,6 @@ jobs:
           path: trivy-sast-results.sarif
           retention-days: 7
 
-      # Сканирование исходного кода. Semgrep.
-#      - name: SAST (Semgrep)
-#        run: |
-#          docker run --rm -v "${{ github.workspace }}:/src" returntocorp/semgrep \
-#            semgrep scan --config=auto --sarif-output=/src/semgrep-sast-results.sarif
-
-#      # Сохранение отчета в CI Артефакты (Semgrep)
-#      - name: Upload SAST Results (Semgrep)
-#        uses: actions/upload-artifact@v7
-#        with:
-#          name: semgrep-sast-results
-#          path: semgrep-sast-results.sarif
-#          retention-days: 7
-
-      # Выгрузка результатов в GitHub Code Scanning
-  #    - name: Upload SAST Results (Trivy)
-  #      uses: github/codeql-action/upload-sarif@v4
-  #      with:
-  #        sarif_file: 'semgrep-sast-results.sarif'
-  #        category: 'semgrep-sast-results'
-
   ###############################################################
   # Статический анализ (SAST Semgrep)
   sast_semgrep:
@@ -145,7 +124,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      # Сканирование с базовым набором правил для CI и выводом в формате SARIF
+      # Сканирование 
       - name: SAST (Semgrep)
         run: semgrep scan --config=p/ci --sarif --output=semgrep-sast-results.sarif
 
