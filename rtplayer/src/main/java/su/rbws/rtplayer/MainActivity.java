@@ -194,10 +194,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         filter.addAction(SoundSystemAbstract.ACTION_PLAYFILE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            registerReceiver(broadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+            registerReceiver(broadcastReceiver, filter, Context.RECEIVER_EXPORTED);
         else
             registerReceiver(broadcastReceiver, filter);
-
+        
         firstResume = false;
     }
 
